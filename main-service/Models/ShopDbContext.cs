@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using main_service.Models.DomainModels;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -36,6 +37,9 @@ public class ShopDbContext : DbContext
     
     // here will all the models be set, an example:
     // public DbSet<MODEL_NAME> MODEL_NAMES { get; set; } = null!;
+    
+    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<Product> Products { get; set; } = null!;
 
     
     /// <summary>
