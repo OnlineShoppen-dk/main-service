@@ -1,7 +1,6 @@
 ﻿using main_service.Models.DomainModels;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace main_service.Models;
 
@@ -13,7 +12,9 @@ namespace main_service.Models;
 /// </summary>
 public class ShopDbContext : DbContext
 {
-
+    public ShopDbContext(DbContextOptions<ShopDbContext> options) : base(options)
+    {
+    }
     
     /// <summary>
     /// From my understanding this was only needed during production
@@ -24,14 +25,11 @@ public class ShopDbContext : DbContext
     {
         public ShopDbContext CreateDbContext(string[] args)
         {
-            /*
-            # MySQL Example
-            TODO: The version iirc was checked on ur database, it is not always 8, 0, 29
-             var optionsBuilder = new DbContextOptionsBuilder<EzTechDbContext>();
-                optionsBuilder.UseMySql("server=server_url;user=user_name;password=user_password;database=database_name",
-                new MySqlServerVersion(new Version(8, 0, 29)));
-             */
-            throw new NotImplementedException();
+             var optionsBuilder = new DbContextOptionsBuilder<ShopDbContext>();
+                optionsBuilder.UseMySql("server=localhost;user=root;password=Password;database=onlineshoppendb",
+                    new MySqlServerVersion(new Version(8, 0, 29)));
+                
+                return new ShopDbContext(optionsBuilder.Options);
         }
     }
     
@@ -40,6 +38,9 @@ public class ShopDbContext : DbContext
     
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Product> Products { get; set; } = null!;
+    public DbSet<Category> Categories { get; set; } = null!;
+    public DbSet<Order> Orders { get; set; } = null!;
+    public DbSet<OrderItem> OrderItems { get; set; } = null!;
 
     
     /// <summary>

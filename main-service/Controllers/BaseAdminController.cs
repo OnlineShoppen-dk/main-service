@@ -7,7 +7,7 @@ namespace main_service.Controllers;
 /// <summary>
 /// This will be the base controller for all admin controllers
 /// </summary>
-[Authorize(Policy = "IsAdmin")]
+// [Authorize(Policy = "IsAdmin")]
 public class BaseAdminController : BaseController
 {
     // If we utilize AutoMapper, we can inject it here

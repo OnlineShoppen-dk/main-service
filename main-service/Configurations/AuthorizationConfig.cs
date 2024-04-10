@@ -1,5 +1,6 @@
 ﻿using main_service.Authentication.Policies;
 using main_service.Models;
+using main_service.Models.DomainModels;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace main_service.Configurations;

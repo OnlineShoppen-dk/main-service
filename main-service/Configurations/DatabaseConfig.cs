@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using main_service.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace main_service.Configurations;
 
@@ -25,5 +26,10 @@ public static class DatabaseConfig
             options.UseMySql(connectionString,
                 new MySqlServerVersion(new Version(8, 0, 29))));
         */
+        Console.WriteLine("Database configured");
+        Console.WriteLine("Connection string: " + connectionString);
+        services.AddDbContext<ShopDbContext>(options =>
+            options.UseMySql(connectionString,
+                new MySqlServerVersion(new Version(8, 0, 29))));
     }
 }

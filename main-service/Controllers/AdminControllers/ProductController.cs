@@ -23,6 +23,9 @@ public class ProductController : BaseAdminController
         [FromQuery] string? orderBy
         )
     {
+        
+        Console.WriteLine("Hello World");
+        return Ok("Hello World");
         var products = _dbContext.Products
             .AsQueryable();
         
@@ -52,7 +55,12 @@ public class ProductController : BaseAdminController
     public IActionResult Post()
     {
         // Creating products can be done here
-        var product = new Product();
+        var product = new Product
+        {
+            Name = "Product 1",
+            Description = "This is product 1",
+            Price = 100.00m
+        };
         // TODO: Request body should be mapped to the product object
         _dbContext.Products.Add(product);
         _dbContext.SaveChanges();

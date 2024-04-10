@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using System.Text;
 using main_service.Models;
+using main_service.Models.DomainModels;
 using Microsoft.IdentityModel.Tokens;
 
 
@@ -35,8 +36,8 @@ public class JwtHelper
         var authClaims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()!),
-            new(ClaimTypes.GivenName, user.Name!),
-            new(ClaimTypes.Role, user.Role),
+            // new(ClaimTypes.GivenName, user.Name!),
+            // new(ClaimTypes.Role, user.Role),
         };
         var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
         var tokenDescriptor = new SecurityTokenDescriptor
