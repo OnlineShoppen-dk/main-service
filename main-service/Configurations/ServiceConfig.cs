@@ -1,4 +1,5 @@
 ﻿using main_service.Authentication.Policies;
+using main_service.RabbitMQ;
 using main_service.Services;
 using Microsoft.AspNetCore.Authorization;
 
@@ -26,6 +27,11 @@ public class ServiceConfig
     private static void ServiceClasses(IServiceCollection services)
     {
         services.AddScoped<IBlobService, BlobService>();
+        
+        
+        // RabbitMQ
+        services.AddSingleton<IRabbitMQProducer, RabbitMQProducer>();
+        services.AddScoped<IRabbitMQProducer, RabbitMQProducer>();
     }
 
     /// <summary>
