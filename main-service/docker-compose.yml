@@ -1,0 +1,49 @@
+﻿version: '3'
+
+services:
+  rabbitqueue:
+    image: rabbitmq:3.13-management
+    container_name: rabbitqueue
+    command: rabbitmq-server
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: rabbitmq-diagnostics check_port_connectivity
+      interval: 20s
+      timeout: 10s
+      retries: 5
+    networks:
+      - queue-network
+
+  main-service:
+    build:
+      context: ./main-service/main-service
+      dockerfile: Dockerfile
+    image: main-service
+    container_name: main-service-container
+    ports:
+      - "8080:8080"
+    networks:
+      - queue-network
+    depends_on:
+      rabbitqueue:
+        condition: service_healthy
+        
+  express-docker:
+    build:
+      context: ../express-docker
+      dockerfile: Dockerfile
+    image: express-docker
+    container_name: express-docker-container
+    ports:
+      - "8081:8081"
+    networks:
+      - queue-network
+    depends_on:
+      rabbitqueue:
+        condition: service_healthy
+
+
+networks:
+  queue-network:

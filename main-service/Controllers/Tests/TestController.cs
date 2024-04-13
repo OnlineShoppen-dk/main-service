@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace main_service.Controllers.Tests;
 
-[Route("[controller]")]
+[Route("/")]
 [ApiController]
 public class TestController : BaseController
 {
@@ -27,7 +27,7 @@ public class TestController : BaseController
         Console.WriteLine("sending message");
         var message = new
         {
-            Message = "Hello World !!!!"
+            Message = "Hello World From Docker"
         };
         _rabbitMQProducer.PublishMessage(message);
         return Ok("Test");

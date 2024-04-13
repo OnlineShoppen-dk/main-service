@@ -1,16 +1,14 @@
 ﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["main-service/main-service.csproj", "main-service/"]
-RUN dotnet restore "main-service/main-service.csproj"
+COPY ["main-service.csproj", "./"]
+RUN dotnet restore "main-service.csproj"
 COPY . .
-WORKDIR "/src/main-service"
+WORKDIR "/src/"
 RUN dotnet build "main-service.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
