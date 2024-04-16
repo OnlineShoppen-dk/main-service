@@ -1,6 +1,20 @@
 ﻿version: '3'
 
 services:
+  main-service:
+    build:
+      context: ./main-service
+      dockerfile: Dockerfile
+    image: main-service
+    container_name: main-service-container
+    ports:
+      - "8080:8080"
+    networks:
+      - queue-network
+    depends_on:
+      - rabbitqueue
+      - db
+        
   rabbitqueue:
     image: rabbitmq:3.13-management
     container_name: rabbitqueue
@@ -16,34 +30,19 @@ services:
     networks:
       - queue-network
 
-  main-service:
-    build:
-      context: ./main-service/main-service
-      dockerfile: Dockerfile
-    image: main-service
-    container_name: main-service-container
+  main-service-db:
+    image: mysql:8.0.29
+    container_name: main-service-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: mainpass
+      MYSQL_DATABASE: mainservicedb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpass
     ports:
-      - "8080:8080"
-    networks:
-      - queue-network
-    depends_on:
-      rabbitqueue:
-        condition: service_healthy
-        
-  express-docker:
-    build:
-      context: ../express-docker
-      dockerfile: Dockerfile
-    image: express-docker
-    container_name: express-docker-container
-    ports:
-      - "8081:8081"
-    networks:
-      - queue-network
-    depends_on:
-      rabbitqueue:
-        condition: service_healthy
-
+      - "3306:3306"
+    volumes:
+      - ./mysql:/var/lib/mysql
 
 networks:
   queue-network:

@@ -19,7 +19,7 @@ public class Startup
         var issuer = "OnlineShoppen.dk"; // Configuration["Jwt:Issuer"];
         var audience = "OnlineShoppen.dk"; // Configuration["Jwt:Audience"];
         var key = "SZBNheG6DYChL2oyIo6Q3dAiK4sREZGPX6orWfH2Mk="; // Configuration["Jwt:Key"];
-        var connectionString = "server=localhost;user=Root;password=Password;database=mainservicedb"; // Configuration.GetConnectionString("conn");
+        var connectionString = "server=main-service-db;user=user;password=userpass;database=mainservicedb"; // Configuration.GetConnectionString("conn");
 
         /* Checks if any of the configuration values are missing
         if (issuer is null || audience is null || key is null || connectionString is null)

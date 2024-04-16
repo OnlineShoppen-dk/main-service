@@ -26,7 +26,7 @@ public class ShopDbContext : DbContext
         public ShopDbContext CreateDbContext(string[] args)
         {
              var optionsBuilder = new DbContextOptionsBuilder<ShopDbContext>();
-                optionsBuilder.UseMySql("server=localhost;user=root;password=Password;database=onlineshoppendb",
+                optionsBuilder.UseMySql("server=main-service-db;user=user;password=userpass;database=mainservicedb",
                     new MySqlServerVersion(new Version(8, 0, 29)));
                 
                 return new ShopDbContext(optionsBuilder.Options);
