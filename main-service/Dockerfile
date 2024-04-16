@@ -8,7 +8,7 @@ WORKDIR /src
 COPY ["main-service.csproj", "./"]
 RUN dotnet restore "main-service.csproj"
 COPY . .
-RUN dotnet tool install --global dotnet-ef --version 
+RUN dotnet tool install --global dotnet-ef --version 7.0.0
 RUN /root/.dotnet/tools/dotnet-ef migrations add InitialCreate --project main-service.csproj -v
 RUN /root/.dotnet/tools/dotnet-ef database update
 
