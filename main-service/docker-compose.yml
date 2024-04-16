@@ -13,7 +13,7 @@ services:
       - queue-network
     depends_on:
       - rabbitqueue
-      - db
+      - main-service-db
         
   rabbitqueue:
     image: rabbitmq:3.13-management
