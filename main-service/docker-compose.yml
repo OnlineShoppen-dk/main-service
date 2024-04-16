@@ -3,7 +3,7 @@
 services:
   main-service:
     build:
-      context: ./main-service
+      context: .
       dockerfile: Dockerfile
     image: main-service
     container_name: main-service-container
