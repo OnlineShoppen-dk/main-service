@@ -8,8 +8,14 @@ WORKDIR /src
 COPY ["main-service.csproj", "./"]
 RUN dotnet restore "main-service.csproj"
 COPY . .
+
+# AWAIT FOR DATABASE
+FROM build AS wait-for-db
+RUN apt-get update && apt-get install -y netcat
+RUN chmod +x ./wait-for-it.sh
+RUN ./wait-for-it.sh $DB_HOST:$DB_PORT --timeout=0
+
 RUN dotnet tool install --global dotnet-ef --version 7.0.0
-RUN /root/.dotnet/tools/dotnet-ef migrations add InitialCreate --project main-service.csproj -v
 RUN /root/.dotnet/tools/dotnet-ef database update
 
 WORKDIR "/src/"

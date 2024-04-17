@@ -1,6 +1,7 @@
 ﻿using main_service.Models;
 using main_service.Models.DomainModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace main_service.Controllers.AdminControllers;
 
@@ -16,63 +17,51 @@ public class ProductController : BaseAdminController
     
     // Get All Products
     [HttpGet]
-    public IActionResult Get(
-        [FromQuery] int? page,
-        [FromQuery] int? pageSize,
-        [FromQuery] string? search,
-        [FromQuery] string? orderBy
+    public async Task<IActionResult> Get(
         )
     {
-        
-        Console.WriteLine("Hello World");
-        return Ok("Hello World");
-        var products = _dbContext.Products
-            .AsQueryable();
-        
-        var response = new
-        {
-            Total = products.Count(),
-            Data = products
-        };
-        
-        return Ok(response);
+        var products = await _dbContext.Products.ToListAsync(); 
+        return Ok(products);
     }
     
     // Get Product by ID
     [HttpGet("{id}")]
-    public IActionResult Get(int id)
+    public async Task<IActionResult> Get(int id)
     {
-        var product = _dbContext.Products.Find(id);
-        if (product == null)
-        {
-            return NotFound("Product not found");
-        }
+        var product = _dbContext.Products.FindAsync(id);
         return Ok(product);
     }
     
     // Create Product
     [HttpPost]
-    public IActionResult Post()
+    public async Task<IActionResult> Post()
     {
-        // Creating products can be done here
         var product = new Product
         {
             Name = "Product 1",
             Description = "This is product 1",
             Price = 100.00m
         };
-        // TODO: Request body should be mapped to the product object
-        _dbContext.Products.Add(product);
-        _dbContext.SaveChanges();
-        return Ok("Product created");
+        await _dbContext.Products.AddAsync(product);
+        await _dbContext.SaveChangesAsync();
+        var response = await _dbContext.Products.FindAsync(product.Id);
+        return Ok(response);
     }
     
     // Update Product
     [HttpPut("{id}")]
-    public IActionResult Put(int id)
+    public async Task<IActionResult> Put(int id)
     {
-        // Disabling, enabling, and updating products can be done here
-        return Ok("Hello World");
+        var product = await _dbContext.Products.FindAsync(id);
+        if (product == null)
+        {
+            return NotFound("Product not found");
+        }
+        product.Name = "Product 1 updated";
+        product.Description = "This is product 1";
+        product.Price = 100.00m;
+        await _dbContext.SaveChangesAsync();
+        return Ok(product);
     }
     
     // Delete Product

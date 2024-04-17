@@ -1,20 +1,6 @@
 ﻿version: '3'
 
 services:
-  main-service:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: main-service
-    container_name: main-service-container
-    ports:
-      - "8080:8080"
-    networks:
-      - queue-network
-    depends_on:
-      - rabbitqueue
-      - main-service-db
-        
   rabbitqueue:
     image: rabbitmq:3.13-management
     container_name: rabbitqueue
@@ -42,7 +28,31 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./mysql:/var/lib/mysql
+      - ../mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+  
+  main-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: main-service
+    container_name: main-service-container
+    environment:
+      ISSUER: "OnlineShoppen.dk"
+      AUDIENCE: "OnlineShoppen.dk"
+      KEY: "SZBNheG6DYChL2oyIo6Q3dAiK4sREZGPX6orWfH2Mk="
+      CONNECTION_STRING: "server=192.168.65.254;user=user;password=userpass;database=mainservicedb"
+    ports:
+      - "8080:8080"
+    networks:
+      - queue-network
+    depends_on:
+      main-service-db:
+        condition: service_healthy
 
 networks:
   queue-network:

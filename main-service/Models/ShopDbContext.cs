@@ -15,7 +15,6 @@ public class ShopDbContext : DbContext
     public ShopDbContext(DbContextOptions<ShopDbContext> options) : base(options)
     {
     }
-    
     /// <summary>
     /// From my understanding this was only needed during production
     /// It was necessary for when migration were being made
@@ -25,14 +24,13 @@ public class ShopDbContext : DbContext
     {
         public ShopDbContext CreateDbContext(string[] args)
         {
-             var optionsBuilder = new DbContextOptionsBuilder<ShopDbContext>();
-                optionsBuilder.UseMySql("server=main-service-db;user=user;password=userpass;database=mainservicedb",
-                    new MySqlServerVersion(new Version(8, 0, 29)));
-                
-                return new ShopDbContext(optionsBuilder.Options);
+            var optionsBuilder = new DbContextOptionsBuilder<ShopDbContext>();
+            optionsBuilder.UseMySql("server=192.168.65.254;user=user;password=userpass;database=mainservicedb",
+                new MySqlServerVersion(new Version(8, 0, 29)));
+            return new ShopDbContext(optionsBuilder.Options);
         }
     }
-    
+
     // here will all the models be set, an example:
     // public DbSet<MODEL_NAME> MODEL_NAMES { get; set; } = null!;
     

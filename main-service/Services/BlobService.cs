@@ -18,6 +18,7 @@ public interface IBlobService
     Task<(int, string)> DeleteImage(string url);
     Task<bool> ImageExists(string filename);
 }
+
 public class BlobService : IBlobService
 {
     
