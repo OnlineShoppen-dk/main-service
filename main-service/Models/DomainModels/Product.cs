@@ -37,6 +37,9 @@ public class Product
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
     
+    [DefaultValue(false)]
+    public bool Disabled { get; set; }
+    
     // Relations to other entities
     public List<Category> Categories { get; set; } = new();
     public List<OrderItem> OrderItems { get; set; } = new();

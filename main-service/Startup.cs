@@ -19,6 +19,7 @@ public class Startup
     {
         // Gets the necessary configuration values
         // TODO: This needs to be done, so that the configuration values are not hardcoded
+        
         var issuer = Environment.GetEnvironmentVariable("ISSUER");
         var audience = Environment.GetEnvironmentVariable("AUDIENCE");
         var key = Environment.GetEnvironmentVariable("KEY");
@@ -56,6 +57,10 @@ public class Startup
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ShopDbContext dbContext)
     {
         dbContext.Database.Migrate();
+        
+        // When app starts it synchronizes with Elasticsearch
+        // RabbitMQ.syncWithElasticsearch();
+        
         app.UseCors("AllowAll");
         if (env.IsDevelopment())
         {

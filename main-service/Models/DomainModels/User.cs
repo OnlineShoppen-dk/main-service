@@ -5,7 +5,6 @@ namespace main_service.Models.DomainModels;
 
 public class User
 {
-    
     public int Id { get; set; }
     public Guid Guid { get; set; }
     public string FirstName { get; set; } = null!;

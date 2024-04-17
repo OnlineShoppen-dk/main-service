@@ -3,9 +3,14 @@
 public class Order
 {
     public int Id { get; set; }
+    
     public string OrderNumber { get; set; } = null!;
+    
     public string Status { get; set; } = null!;
+    
     public string TransactionId { get; set; } = null!;
+    
+    
     
     // Relations to other entities
     public List<OrderItem> OrderItems { get; set; } = new();

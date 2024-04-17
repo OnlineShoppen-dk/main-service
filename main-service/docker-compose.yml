@@ -8,6 +8,9 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: userpass
     healthcheck:
       test: rabbitmq-diagnostics check_port_connectivity
       interval: 20s
@@ -46,6 +49,9 @@ services:
       AUDIENCE: "OnlineShoppen.dk"
       KEY: "SZBNheG6DYChL2oyIo6Q3dAiK4sREZGPX6orWfH2Mk="
       CONNECTION_STRING: "server=192.168.65.254;user=user;password=userpass;database=mainservicedb"
+      RABBITMQ_HOST: "rabbitqueue"
+      RABBITMQ_PRODUCT_QUEUE: "productQueue"
+      
     ports:
       - "8080:8080"
     networks:

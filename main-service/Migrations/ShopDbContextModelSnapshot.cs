@@ -115,6 +115,9 @@ namespace main_service.Migrations
                         .HasMaxLength(999)
                         .HasColumnType("varchar(999)");
 
+                    b.Property<bool>("Disabled")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
