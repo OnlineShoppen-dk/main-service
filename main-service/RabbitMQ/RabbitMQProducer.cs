@@ -15,7 +15,7 @@ public class RabbitMQProducer : IRabbitMQProducer
     {
         var factory = new ConnectionFactory()
         {
-            HostName = "rabbitqueue",
+            HostName = "rabbitmq",
         };
         var connection = factory.CreateConnection();
         using var channel = connection.CreateModel();

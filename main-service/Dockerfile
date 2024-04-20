@@ -28,4 +28,4 @@ RUN dotnet publish "main-service.csproj" -c $BUILD_CONFIGURATION -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "main-service.dll"]
+CMD ["sh", "-c", "echo 'Waiting for MySQL to start...' && sleep 10 && dotnet main-service.dll"]
