@@ -26,17 +26,31 @@ public class ProductController : BaseAdminController
     )
     {
         var products = _dbContext.Products
+            .AsSplitQuery()
             .AsQueryable();
 
+        if (search != null)
+        {
+            products = products.Where(x => x.Name.Contains(search));
+        }
+        
+        // Sorting
+        
+        // Pagination
+        const int defaultPage = 1;
+        const int defaultPageSize = 25;
+        
+        // Create response
         var productList = await products.ToListAsync();
+        var totalProducts = productList.Count;
         
         var response = new GetProductsResponse
         {
-            TotalProducts = await products.CountAsync(),
-            Page = page ?? 1,
-            PageSize = pageSize ?? 25,
+            TotalProducts = totalProducts,
+            Page = page ?? defaultPage,
+            PageSize = pageSize ?? defaultPageSize,
             Search = search ?? "",
-            Sort = sort ?? "name_asc",
+            Sort = sort ?? "",
             Products = productList
         };
         
@@ -47,39 +61,48 @@ public class ProductController : BaseAdminController
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(int id)
     {
-        var product = _dbContext.Products.FindAsync(id);
+        var product = await _dbContext.Products.FindAsync(id);
+        if (product == null)
+        {
+            return NotFound("Product not found");
+        }
         return Ok(product);
     }
 
     // Create Product
     [HttpPost]
-    public async Task<IActionResult> Post()
+    public async Task<IActionResult> Post([FromBody] PostProductRequest request)
     {
         var product = new Product
         {
-            Name = "Product 1",
-            Description = "This is product 1",
-            Price = 100.00m
+            Name = request.Name,
+            Description = request.Description,
+            Price = request.Price,
+            Stock = request.Stock,
+            Sold = 0
         };
+
         await _dbContext.Products.AddAsync(product);
         await _dbContext.SaveChangesAsync();
-        var response = await _dbContext.Products.FindAsync(product.Id);
-        return Ok(response);
+        return Ok(product);
     }
 
     // Update Product
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put(int id)
+    public async Task<IActionResult> Put(int id, [FromBody] PutProductRequest request)
     {
         var product = await _dbContext.Products.FindAsync(id);
         if (product == null)
         {
             return NotFound("Product not found");
         }
-
-        product.Name = "Product 1 updated";
-        product.Description = "This is product 1";
-        product.Price = 100.00m;
+        
+        product.Name = request.Name ?? product.Name;
+        product.Description = request.Description ?? product.Description;
+        product.Price = request.Price ?? product.Price;
+        product.Stock = request.Stock ?? product.Stock;
+        product.Sold = request.Sold ?? product.Sold;
+        product.Disabled = request.Disabled ?? product.Disabled;
         await _dbContext.SaveChangesAsync();
         return Ok(product);
     }
@@ -93,7 +116,6 @@ public class ProductController : BaseAdminController
         {
             return NotFound("Product not found");
         }
-
         _dbContext.Products.Remove(product);
         await _dbContext.SaveChangesAsync();
         return Ok("Product deleted");
