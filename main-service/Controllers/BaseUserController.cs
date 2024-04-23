@@ -1,4 +1,6 @@
-﻿using main_service.Authentication;
+﻿using AutoMapper;
+using main_service.Authentication;
+using main_service.Models;
 using Microsoft.AspNetCore.Authorization;
 
 namespace main_service.Controllers;
@@ -19,5 +21,8 @@ public class BaseUserController : BaseController
             return currentlyLoggedUser;
         }
     }
-    
+
+    public BaseUserController(IMapper mapper, ShopDbContext dbContext) : base(mapper, dbContext)
+    {
+    }
 }

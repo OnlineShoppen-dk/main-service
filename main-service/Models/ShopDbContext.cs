@@ -65,8 +65,6 @@ public class ShopDbContext : DbContext
             .WithMany(p => p.OrderItems)
             .HasForeignKey(oi => oi.ProductId);
         
-        
-        
         // Order
         modelBuilder.Entity<Order>()
             .HasIndex(e => e.OrderNumber)

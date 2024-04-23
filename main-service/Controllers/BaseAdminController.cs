@@ -1,4 +1,5 @@
-﻿using main_service.Models;
+﻿using AutoMapper;
+using main_service.Models;
 using Microsoft.AspNetCore.Authorization;
 
 namespace main_service.Controllers;
@@ -12,10 +13,7 @@ public class BaseAdminController : BaseController
 {
     // If we utilize AutoMapper, we can inject it here
     // protected readonly IMapper Mapper;
-    protected readonly ShopDbContext DbContext;
-
-    public BaseAdminController(ShopDbContext dbContext)
+    public BaseAdminController(IMapper mapper, ShopDbContext dbContext) : base(mapper, dbContext)
     {
-        DbContext = dbContext;
     }
 }

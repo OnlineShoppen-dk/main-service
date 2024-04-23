@@ -1,6 +1,8 @@
-﻿using main_service.Models;
+﻿using AutoMapper;
+using main_service.Models;
 using main_service.Models.ApiModels.ProductApiModels;
 using main_service.Models.DomainModels;
+using main_service.Models.DtoModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -51,7 +53,7 @@ public class ProductController : BaseAdminController
             PageSize = pageSize ?? defaultPageSize,
             Search = search ?? "",
             Sort = sort ?? "",
-            Products = productList
+            Products = _mapper.Map<List<ProductDto>>(productList),
         };
         
         return Ok(response);
@@ -122,8 +124,7 @@ public class ProductController : BaseAdminController
     }
 
 
-    public ProductController(ShopDbContext dbContext) : base(dbContext)
+    public ProductController(IMapper mapper, ShopDbContext dbContext) : base(mapper, dbContext)
     {
-        _dbContext = dbContext;
     }
 }
