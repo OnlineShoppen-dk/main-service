@@ -13,7 +13,7 @@ namespace main_service.Controllers.AdminControllers;
 [Route("api/admin/[controller]")]
 public class ProductController : BaseAdminController
 {
-    private readonly RabbitMQProducer _rabbitMqProducer;
+    private readonly IRabbitMQProducer _rabbitMqProducer;
     // Get All Products
     [HttpGet]
     public async Task<IActionResult> Get(
