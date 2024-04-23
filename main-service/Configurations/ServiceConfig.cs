@@ -32,7 +32,6 @@ public class ServiceConfig
         services.AddAutoMapper(typeof(MappingProfile));
         
         // RabbitMQ
-        services.AddSingleton<IRabbitMQProducer, RabbitMQProducer>();
         services.AddScoped<IRabbitMQProducer, RabbitMQProducer>();
     }
 
