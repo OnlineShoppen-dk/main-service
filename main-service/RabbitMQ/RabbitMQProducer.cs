@@ -24,7 +24,7 @@ public class RabbitMQProducer : IRabbitMQProducer
         var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST");
         var productQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_QUEUE");
         var user = Environment.GetEnvironmentVariable("RABBITMQ_USER");
-        var password = Environment.GetEnvironmentVariable("RABBITMQ_PASSW");
+        var password = Environment.GetEnvironmentVariable("RABBITMQ_PASS");
         
         var factory = new ConnectionFactory()
         {
@@ -44,7 +44,8 @@ public class RabbitMQProducer : IRabbitMQProducer
         
         var json = JsonConvert.SerializeObject(message);
         var body = Encoding.UTF8.GetBytes(json);
-        channel.BasicPublish(exchange: "", routingKey: "product", body: body);
+        channel.BasicPublish(exchange: "", routingKey: productQueue, body: body);
+        channel.Close();
     }
     
     /*
