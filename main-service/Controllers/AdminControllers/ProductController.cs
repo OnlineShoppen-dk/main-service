@@ -121,7 +121,7 @@ public class ProductController : BaseAdminController
     }
 
 
-    public ProductController(IMapper mapper, ShopDbContext dbContext, RabbitMQProducer rabbitMqProducer) : base(mapper, dbContext)
+    public ProductController(IMapper mapper, ShopDbContext dbContext, IRabbitMQProducer rabbitMqProducer) : base(mapper, dbContext)
     {
         _rabbitMqProducer = rabbitMqProducer;
     }
