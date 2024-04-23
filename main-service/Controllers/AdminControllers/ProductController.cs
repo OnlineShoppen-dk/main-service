@@ -12,12 +12,6 @@ namespace main_service.Controllers.AdminControllers;
 [Route("api/admin/[controller]")]
 public class ProductController : BaseAdminController
 {
-    // TODO: Implement search, pagination, and ordering
-    // Either copy paste into each controller or create a service to handle this which can
-    // be used in each controller regardless of the model
-
-    private readonly ShopDbContext _dbContext;
-
     // Get All Products
     [HttpGet]
     public async Task<IActionResult> Get(
