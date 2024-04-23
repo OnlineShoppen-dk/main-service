@@ -21,12 +21,11 @@ public class RabbitMQProducer : IRabbitMQProducer
 
     public void PublishProductQueue<T>(T message)
     {
-        Console.WriteLine("Publishing message");
-        var hostName = _configuration["RABBITMQ_HOST"];
-        var productQueue = _configuration["RABBITMQ_PRODUCT_QUEUE"];
-        var user = _configuration["RABBITMQ_USER"];
-        var password = _configuration["RABBITMQ_PASSWORD"];
-
+        var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST");
+        var productQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_QUEUE");
+        var user = Environment.GetEnvironmentVariable("RABBITMQ_USER");
+        var password = Environment.GetEnvironmentVariable("RABBITMQ_PASSW");
+        
         var factory = new ConnectionFactory()
         {
             HostName = hostName,
@@ -45,7 +44,7 @@ public class RabbitMQProducer : IRabbitMQProducer
         
         var json = JsonConvert.SerializeObject(message);
         var body = Encoding.UTF8.GetBytes(json);
-        channel.BasicPublish(exchange: "", routingKey: "test", body: body);
+        channel.BasicPublish(exchange: "", routingKey: "product", body: body);
     }
     
     /*

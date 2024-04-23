@@ -17,16 +17,10 @@ public class Startup
     
     public void ConfigureServices(IServiceCollection services)
     {
-        // Gets the necessary configuration values
-        // TODO: This needs to be done, so that the configuration values are not hardcoded
-        
         var issuer = Environment.GetEnvironmentVariable("ISSUER");
         var audience = Environment.GetEnvironmentVariable("AUDIENCE");
         var key = Environment.GetEnvironmentVariable("KEY");
         var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-        
-        // Start a migration to create the database
-        
 
         if (issuer is null || audience is null || key is null || connectionString is null)
         {
@@ -38,7 +32,6 @@ public class Startup
         ServiceConfig.Configure(services);
         DatabaseConfig.Configure(services, connectionString);
         SwaggerConfig.Configure(services);
-        
         
         services.AddControllers();
 
@@ -56,10 +49,8 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ShopDbContext dbContext)
     {
+        // Migrate database to latest version if necessary
         dbContext.Database.Migrate();
-        
-        // When app starts it synchronizes with Elasticsearch
-        // RabbitMQ.syncWithElasticsearch();
         
         app.UseCors("AllowAll");
         if (env.IsDevelopment())
