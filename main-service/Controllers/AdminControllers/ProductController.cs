@@ -3,6 +3,7 @@ using main_service.Models;
 using main_service.Models.ApiModels.ProductApiModels;
 using main_service.Models.DomainModels;
 using main_service.Models.DtoModels;
+using main_service.RabbitMQ;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,7 @@ namespace main_service.Controllers.AdminControllers;
 [Route("api/admin/[controller]")]
 public class ProductController : BaseAdminController
 {
+    private readonly RabbitMQProducer _rabbitMqProducer;
     // Get All Products
     [HttpGet]
     public async Task<IActionResult> Get(
@@ -77,9 +79,10 @@ public class ProductController : BaseAdminController
             Stock = request.Stock,
             Sold = 0
         };
-
+        
         await _dbContext.Products.AddAsync(product);
         await _dbContext.SaveChangesAsync();
+        _rabbitMqProducer.PublishProductQueue(product);
         return Ok(product);
     }
 
@@ -118,7 +121,8 @@ public class ProductController : BaseAdminController
     }
 
 
-    public ProductController(IMapper mapper, ShopDbContext dbContext) : base(mapper, dbContext)
+    public ProductController(IMapper mapper, ShopDbContext dbContext, RabbitMQProducer rabbitMqProducer) : base(mapper, dbContext)
     {
+        _rabbitMqProducer = rabbitMqProducer;
     }
 }
