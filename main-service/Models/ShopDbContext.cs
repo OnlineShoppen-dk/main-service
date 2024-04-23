@@ -34,7 +34,7 @@ public class ShopDbContext : DbContext
     // here will all the models be set, an example:
     // public DbSet<MODEL_NAME> MODEL_NAMES { get; set; } = null!;
     
-    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<UserDetails> Users { get; set; } = null!;
     public DbSet<Product> Products { get; set; } = null!;
     public DbSet<Category> Categories { get; set; } = null!;
     public DbSet<Order> Orders { get; set; } = null!;
@@ -47,6 +47,33 @@ public class ShopDbContext : DbContext
     /// </summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        
+        // Products & Categories Relation (Many to Many)
+        modelBuilder.Entity<Product>()
+            .HasMany(p => p.Categories)
+            .WithMany(c => c.Products);
+        
+        // Order & OrderItem Relation (One to Many)
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.OrderItems)
+            .WithOne(oi => oi.Order)
+            .HasForeignKey(oi => oi.OrderId);
+        
+        // OrderItem & Product Relation (Many to One)
+        modelBuilder.Entity<OrderItem>()
+            .HasOne(oi => oi.Product)
+            .WithMany(p => p.OrderItems)
+            .HasForeignKey(oi => oi.ProductId);
+        
+        
+        
+        // Order
+        modelBuilder.Entity<Order>()
+            .HasIndex(e => e.OrderNumber)
+            .IsUnique();
+        
+        
+        
         // Some examples
         /*
         - - To make one of the models value unique

@@ -31,11 +31,11 @@ public class JwtHelper
         return user;
     }
 
-    public string GenerateToken(User user)
+    public string GenerateToken(UserDetails userDetails)
     {
         var authClaims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()!),
+            new(ClaimTypes.NameIdentifier, userDetails.Id.ToString()!),
             // new(ClaimTypes.GivenName, user.Name!),
             // new(ClaimTypes.Role, user.Role),
         };

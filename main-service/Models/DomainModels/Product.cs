@@ -43,5 +43,4 @@ public class Product
     // Relations to other entities
     public List<Category> Categories { get; set; } = new();
     public List<OrderItem> OrderItems { get; set; } = new();
-
 }
