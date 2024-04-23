@@ -1,4 +1,5 @@
 ﻿using main_service.Authentication.Policies;
+using main_service.Models;
 using main_service.RabbitMQ;
 using main_service.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -26,8 +27,9 @@ public class ServiceConfig
     /// </summary>
     private static void ServiceClasses(IServiceCollection services)
     {
+        // Services
         services.AddScoped<IBlobService, BlobService>();
-        
+        services.AddAutoMapper(typeof(MappingProfile));
         
         // RabbitMQ
         services.AddSingleton<IRabbitMQProducer, RabbitMQProducer>();
