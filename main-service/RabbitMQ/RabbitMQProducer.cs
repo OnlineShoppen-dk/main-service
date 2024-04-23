@@ -21,11 +21,12 @@ public class RabbitMQProducer : IRabbitMQProducer
 
     public void PublishProductQueue<T>(T message)
     {
+        Console.WriteLine("Publishing message");
         var hostName = _configuration["RABBITMQ_HOST"];
         var productQueue = _configuration["RABBITMQ_PRODUCT_QUEUE"];
         var user = _configuration["RABBITMQ_USER"];
         var password = _configuration["RABBITMQ_PASSWORD"];
-        
+
         var factory = new ConnectionFactory()
         {
             HostName = hostName,
