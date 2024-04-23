@@ -46,6 +46,7 @@ public class RabbitMQProducer : IRabbitMQProducer
         var body = Encoding.UTF8.GetBytes(json);
         channel.BasicPublish(exchange: "", routingKey: productQueue, body: body);
         channel.Close();
+        connection.Close();
     }
     
     /*
