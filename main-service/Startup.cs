@@ -17,7 +17,7 @@ public class Startup
     
     public void ConfigureServices(IServiceCollection services)
     {
-        /* Gets the necessary configuration values */
+        /* Gets the necessary configuration values, if run locally gets local values, README.md for setting those values */
         var issuer = Environment.GetEnvironmentVariable("ISSUER") ?? Configuration["Jwt:Issuer"];
         var audience = Environment.GetEnvironmentVariable("AUDIENCE") ?? Configuration["Jwt:Audience"];
         var key = Environment.GetEnvironmentVariable("KEY") ?? Configuration["Jwt:Key"];

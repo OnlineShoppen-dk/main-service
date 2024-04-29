@@ -40,6 +40,10 @@ public class Product
     [DefaultValue(false)]
     public bool Disabled { get; set; }
     
+    // The thumbnail / main image of the product
+    // if not set, the first image in the list will be used
+    public int? ImageId { get; set; }
+    
     // Relations to other entities
     public List<Category> Categories { get; set; } = new();
     public List<OrderItem> OrderItems { get; set; } = new();
