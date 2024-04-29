@@ -3,6 +3,8 @@ using main_service.Models;
 using main_service.Models.ApiModels.CategoryApiModels;
 using main_service.Models.DomainModels;
 using main_service.Models.DtoModels;
+using main_service.RabbitMQ;
+using main_service.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,46 +14,39 @@ namespace main_service.Controllers.AdminControllers;
 [Route("api/admin/[controller]")]
 public class CategoryController : BaseAdminController
 {
-    // TODO: Implement search, pagination, and ordering
-    // Either copy paste into each controller or create a service to handle this which can
-    // be used in each controller regardless of the model
-
-    // Get All Categorys
+    // Get All Categories
     [HttpGet]
     public async Task<IActionResult> Get(
         [FromQuery] string? search,
         [FromQuery] int? page,
-        [FromQuery] int? pageSize,
-        [FromQuery] string? sort
+        [FromQuery] int? pageSize
     )
     {
-
+        // Get all categories from the database as a queryable
         var categories = _dbContext.Categories
             .AsSplitQuery()
             .AsQueryable();
-
+        
+        // Search
         if (search != null)
         {
             categories = categories.Where(x => x.Name.Contains(search));
         }
         
-        // Sorting
-        
         // Pagination
-        const int defaultPage = 1;
-        const int defaultPageSize = 25;
+        (categories, var pageResult, var pageSizeResult, var totalPages, var totalCategories) = _paginationService.ApplyPagination(categories, page, pageSize);
         
-        // Create response
+        // Get the categories as a list
         var categoryList = await categories.ToListAsync();
-        var totalCategories = categoryList.Count;
         
+        // Response
         var response = new GetCategoriesResponse
         {
             TotalCategories = totalCategories,
-            Page = page ?? defaultPage,
-            PageSize = pageSize ?? defaultPageSize,
+            Page = pageResult,
+            PageSize = pageSizeResult,
+            TotalPages = totalPages,
             Search = search ?? "",
-            Sort = sort ?? "",
             Categories = _mapper.Map<List<CategoryDto>>(categoryList),
         };
         
@@ -115,7 +110,8 @@ public class CategoryController : BaseAdminController
         return Ok("Category deleted");
     }
 
-    public CategoryController(IMapper mapper, ShopDbContext dbContext) : base(mapper, dbContext)
+
+    public CategoryController(IMapper mapper, ShopDbContext dbContext, IPaginationService paginationService, IRabbitMQProducer rabbitMqProducer) : base(mapper, dbContext, paginationService, rabbitMqProducer)
     {
     }
 }

@@ -17,10 +17,11 @@ public class Startup
     
     public void ConfigureServices(IServiceCollection services)
     {
-        var issuer = Environment.GetEnvironmentVariable("ISSUER");
-        var audience = Environment.GetEnvironmentVariable("AUDIENCE");
-        var key = Environment.GetEnvironmentVariable("KEY");
-        var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
+        /* Gets the necessary configuration values */
+        var issuer = Environment.GetEnvironmentVariable("ISSUER") ?? Configuration["Jwt:Issuer"];
+        var audience = Environment.GetEnvironmentVariable("AUDIENCE") ?? Configuration["Jwt:Audience"];
+        var key = Environment.GetEnvironmentVariable("KEY") ?? Configuration["Jwt:Key"];
+        var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING") ?? Configuration.GetConnectionString("conn");
 
         if (issuer is null || audience is null || key is null || connectionString is null)
         {

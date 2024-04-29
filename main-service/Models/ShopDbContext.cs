@@ -34,7 +34,7 @@ public class ShopDbContext : DbContext
     // here will all the models be set, an example:
     // public DbSet<MODEL_NAME> MODEL_NAMES { get; set; } = null!;
     
-    public DbSet<UserDetails> Users { get; set; } = null!;
+    public DbSet<UserDetails> UserDetails { get; set; } = null!;
     public DbSet<Product> Products { get; set; } = null!;
     public DbSet<Category> Categories { get; set; } = null!;
     public DbSet<Order> Orders { get; set; } = null!;

@@ -9,6 +9,5 @@ public class GetCategoriesResponse
     public int PageSize { get; set; }
     public int TotalPages { get; set; }
     public string Search { get; set; } = null!;
-    public string Sort { get; set; } = null!;
     public List<CategoryDto> Categories { get; set; } = null!;
 }
