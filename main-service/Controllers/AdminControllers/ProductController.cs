@@ -17,6 +17,55 @@ public class ProductController : BaseAdminController
     
     private readonly IBlobService _blobService;
     
+    // Product State Operations
+    // These operation are manual operations that can be performed on a product by an admin if needed
+    [HttpPost]
+    [Route("{productId:int}/disable")]
+    public async Task<IActionResult> Disable(int productId)
+    {
+        var product = await _dbContext.Products.FindAsync(productId);
+        if (product == null) return NotFound("Product not found");
+        
+        product.Disabled = true;
+        await _dbContext.SaveChangesAsync();
+        return Ok("Product disabled");
+    }
+    
+    [HttpPost]
+    [Route("{productId:int}/enable")]
+    public async Task<IActionResult> Enable(int productId)
+    {
+        var product = await _dbContext.Products.FindAsync(productId);
+        if (product == null) return NotFound("Product not found");
+        
+        product.Disabled = false;
+        await _dbContext.SaveChangesAsync();
+        return Ok("Product enabled");
+    }
+    
+    [HttpPost]
+    [Route("{productId:int}/sell/{quantity:int}")]
+    public async Task<IActionResult> Sell(int productId, int quantity)
+    {
+        var product = await _dbContext.Products.FindAsync(productId);
+        if (product == null) return NotFound("Product not found");
+        product.ProductSale(quantity);
+        await _dbContext.SaveChangesAsync();
+        return Ok("Product sold");
+    }
+    
+    [HttpPost]
+    [Route("{productId:int}/restock/{quantity:int}")]
+    public async Task<IActionResult> Restock(int productId, int quantity)
+    {
+        var product = await _dbContext.Products.FindAsync(productId);
+        if (product == null) return NotFound("Product not found");
+        product.ProductStockUpdate(quantity);
+        await _dbContext.SaveChangesAsync();
+        return Ok("Product restocked");
+    }
+    
+    // Product Category Operations
     [HttpPost]
     [Route("{productId:int}/add-category/{categoryId:int}")]
     public async Task<IActionResult> AddCategory(int productId, int categoryId)
@@ -30,6 +79,37 @@ public class ProductController : BaseAdminController
         product.Categories.Add(category);
         await _dbContext.SaveChangesAsync();
         return Ok("Category added to product");
+    }
+    
+    [HttpPost]
+    [Route("{productId:int}/remove-category/{categoryId:int}")]
+    public async Task<IActionResult> RemoveCategory(int productId, int categoryId)
+    {
+        var product = await _dbContext.Products.FindAsync(productId);
+        if (product == null) return NotFound("Product not found");
+        
+        var category = await _dbContext.Categories.FindAsync(categoryId);
+        if (category == null) return NotFound("Category not found");
+        
+        product.Categories.Remove(category);
+        await _dbContext.SaveChangesAsync();
+        return Ok("Category removed from product");
+    }
+    
+    // Product Image Operations
+    [HttpPost]
+    [Route("{productId:int}/primary-image/{imageId:int}")]
+    public async Task<IActionResult> SetPrimaryImage(int productId, int imageId)
+    {
+        var product = await _dbContext.Products.FindAsync(productId);
+        if (product == null) return NotFound("Product not found");
+        
+        var image = await _dbContext.Images.FindAsync(imageId);
+        if (image == null) return NotFound("Image not found");
+        
+        product.ImageId = imageId;
+        await _dbContext.SaveChangesAsync();
+        return Ok("Primary image set");
     }
     
     [HttpPost]
@@ -58,7 +138,22 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
         return Ok("Image added to product");
     }
-
+    
+    [HttpDelete]
+    [Route("{productId:int}/delete-image/{imageId:int}")]
+    public async Task<IActionResult> DeleteImage(int productId, int imageId)
+    {
+        var product = await _dbContext.Products.FindAsync(productId);
+        if (product == null) return NotFound("Product not found");
+        
+        var image = await _dbContext.Images.FindAsync(imageId);
+        if (image == null) return NotFound("Image not found");
+        
+        await _blobService.DeleteImage(image.FileName);
+        product.Images.Remove(image);
+        await _dbContext.SaveChangesAsync();
+        return Ok("Image deleted");
+    }
     
     // BASIC CRUD OPERATIONS
     

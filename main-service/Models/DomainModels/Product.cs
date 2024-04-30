@@ -48,4 +48,20 @@ public class Product
     public List<Image> Images { get; set; } = new();
     public List<Category> Categories { get; set; } = new();
     public List<OrderItem> OrderItems { get; set; } = new();
+    
+    // Functions
+    public void ProductSale(int quantity)
+    {
+        Sold += quantity;
+        Stock -= quantity;
+    }
+    public void ProductSaleCancel(int quantity)
+    {
+        Sold -= quantity;
+        Stock += quantity;
+    }
+    public void ProductStockUpdate(int quantity)
+    {
+        Stock += quantity;
+    }
 }

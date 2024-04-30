@@ -15,6 +15,8 @@ namespace main_service.Controllers.AdminControllers;
 public class OrderController : BaseAdminController
 {
     
+    
+    // Basic CRUD operations for Orders
     [HttpGet]
     public async Task<IActionResult> Get(
         [FromQuery] int? page,
@@ -90,6 +92,8 @@ public class OrderController : BaseAdminController
     }
 
     // Update Order
+    // Upon updating an order, the order status is changed, and items are added or removed.
+    // Items added or removed will not be reflected in the order's total price, if the order has already been paid for.
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(int id, [FromBody] PutOrderRequest request)
     {
