@@ -36,12 +36,10 @@ public class ProductController : BaseAdminController
     [Route("{productId:int}/add-image")]
     public async Task<IActionResult> AddImage(int productId, IFormFile file)
     {
-        Console.WriteLine("Adding Image");
         var product = await _dbContext.Products.FindAsync(productId);
         if (product == null) return NotFound("Product not found");
         var newFileName = $"{Guid.NewGuid()}_{Path.GetExtension(file.FileName)}_";
 
-        Console.WriteLine("File name: " + newFileName);
         while (await _blobService.ImageExists(newFileName))
         {
             newFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";

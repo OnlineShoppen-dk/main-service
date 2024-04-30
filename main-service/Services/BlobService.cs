@@ -50,7 +50,6 @@ public class BlobService : IBlobService
 
     public async Task<(int, string)> UploadImage(string fileName, IFormFile file)
     {
-        Console.WriteLine("Uploading Image");
         using var memoryStream = new MemoryStream();
         await file.CopyToAsync(memoryStream);
         var fileBytes = memoryStream.ToArray();
@@ -104,14 +103,11 @@ public class BlobService : IBlobService
     /// </summary>
     private BlobContainerClient GetBlobContainerClient()
     {
-        var connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING") ?? _configuration["Azurite:ConnectionString"]; 
-        var containerName = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONTAINER_NAME") ?? _configuration["Azurite:Container"];
-        Console.WriteLine("Connection String: " + connectionString);
-        Console.WriteLine("Container Name: " + containerName);
+        var connectionString = Environment.GetEnvironmentVariable("AZURITE_CONNECTION_STRING") ?? _configuration["Azurite:ConnectionString"]; 
+        var containerName = Environment.GetEnvironmentVariable("AZURITE_CONTAINER") ?? _configuration["Azurite:Container"];
         var blobServiceClient = new BlobServiceClient(connectionString);
         var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
         containerClient.CreateIfNotExists();
-        Console.WriteLine("Container Created");
         return containerClient;
     }
 }
