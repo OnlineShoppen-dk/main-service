@@ -39,6 +39,7 @@ public class ShopDbContext : DbContext
     public DbSet<Category> Categories { get; set; } = null!;
     public DbSet<Order> Orders { get; set; } = null!;
     public DbSet<OrderItem> OrderItems { get; set; } = null!;
+    public DbSet<Image> Images { get; set; } = null!;
 
     
     /// <summary>
@@ -64,6 +65,18 @@ public class ShopDbContext : DbContext
             .HasOne(oi => oi.Product)
             .WithMany(p => p.OrderItems)
             .HasForeignKey(oi => oi.ProductId);
+        
+        // User & Order Relation (One to Many)
+        modelBuilder.Entity<UserDetails>()
+            .HasMany(u => u.Orders)
+            .WithOne(o => o.UserDetails)
+            .HasForeignKey(o => o.UserId);
+        
+        // Image & Product Relation (One to Many)
+        modelBuilder.Entity<Product>()
+            .HasMany(p => p.Images)
+            .WithOne(i => i.Product)
+            .HasForeignKey(i => i.ProductId);
         
         // Order
         modelBuilder.Entity<Order>()

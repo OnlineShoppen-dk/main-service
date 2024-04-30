@@ -26,11 +26,11 @@ public class Product
     
     [DefaultValue(0)]
     [Range(0, int.MaxValue)]
-    public int? Stock { get; set; }
+    public int? Stock { get; set; } = 0;
     
     [DefaultValue(0)]
     [Range(0, int.MaxValue)]
-    public int? Sold { get; set; }
+    public int? Sold { get; set; } = 0;
     
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
@@ -45,6 +45,7 @@ public class Product
     public int? ImageId { get; set; }
     
     // Relations to other entities
+    public List<Image> Images { get; set; } = new();
     public List<Category> Categories { get; set; } = new();
     public List<OrderItem> OrderItems { get; set; } = new();
 }

@@ -14,6 +14,30 @@ namespace main_service.Controllers.AdminControllers;
 [Route("api/admin/[controller]")]
 public class CategoryController : BaseAdminController
 {
+    
+    [HttpGet]
+    [Route("{id:int}/details")]
+    public async Task<IActionResult> GetCategoryDetails(int id)
+    {
+        var category = await _dbContext.Categories
+            .Include(c => c.Products)
+            .FirstOrDefaultAsync(c => c.Id == id);
+        if (category == null)
+        {
+            return NotFound("Category not found");
+        }
+        var categoryDto = _mapper.Map<CategoryDto>(category);
+        var productDtos = _mapper.Map<List<ProductDto>>(category.Products);
+        var response = new GetCategoryDetailsResponse
+        {
+            Category = categoryDto,
+            Products = productDtos,
+        };
+        return Ok(response);
+    }
+    
+    // BASIC CRUD OPERATIONS
+    
     // Get All Categories
     [HttpGet]
     public async Task<IActionResult> Get(

@@ -30,6 +30,8 @@ public class ServiceConfig
         // Services
         services.AddScoped<IBlobService, BlobService>();
         services.AddAutoMapper(typeof(MappingProfile));
+        services.AddSingleton<IPaginationService, PaginationService>();
+        services.AddScoped<IOrderService, OrderService>();
         
         // RabbitMQ
         services.AddScoped<IRabbitMQProducer, RabbitMQProducer>();

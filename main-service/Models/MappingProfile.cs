@@ -20,5 +20,6 @@ public class MappingProfile : Profile
         CreateMap<Order, OrderDto>().ReverseMap();
         CreateMap<OrderItem, OrderItemDto>().ReverseMap();
         CreateMap<UserDetails, UserDetailsDto>().ReverseMap();
+        CreateMap<Image, ImageDto>().ReverseMap();
     }
 }

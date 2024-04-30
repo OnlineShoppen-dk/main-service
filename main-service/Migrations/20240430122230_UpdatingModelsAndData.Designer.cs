@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using main_service.Models;
 
@@ -10,9 +11,11 @@ using main_service.Models;
 namespace main_service.Migrations
 {
     [DbContext(typeof(ShopDbContext))]
-    partial class ShopDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240430122230_UpdatingModelsAndData")]
+    partial class UpdatingModelsAndData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,35 +61,6 @@ namespace main_service.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("main_service.Models.DomainModels.Image", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("Alt")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int?>("ProductId")
-                        .IsRequired()
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("Images");
-                });
-
             modelBuilder.Entity("main_service.Models.DomainModels.Order", b =>
                 {
                     b.Property<int>("Id")
@@ -102,7 +76,7 @@ namespace main_service.Migrations
                     b.Property<string>("TransactionId")
                         .HasColumnType("longtext");
 
-                    b.Property<int?>("UserId")
+                    b.Property<int?>("UserDetailsId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -110,7 +84,7 @@ namespace main_service.Migrations
                     b.HasIndex("OrderNumber")
                         .IsUnique();
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserDetailsId");
 
                     b.ToTable("Orders");
                 });
@@ -237,22 +211,11 @@ namespace main_service.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("main_service.Models.DomainModels.Image", b =>
-                {
-                    b.HasOne("main_service.Models.DomainModels.Product", "Product")
-                        .WithMany("Images")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("main_service.Models.DomainModels.Order", b =>
                 {
                     b.HasOne("main_service.Models.DomainModels.UserDetails", "UserDetails")
                         .WithMany("Orders")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserDetailsId");
 
                     b.Navigation("UserDetails");
                 });
@@ -283,8 +246,6 @@ namespace main_service.Migrations
 
             modelBuilder.Entity("main_service.Models.DomainModels.Product", b =>
                 {
-                    b.Navigation("Images");
-
                     b.Navigation("OrderItems");
                 });
 

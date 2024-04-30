@@ -10,16 +10,28 @@ public class Order
     public int Id { get; set; }
     
     [Required]
-    public string OrderNumber { get; set; } = null!;
+    public Guid OrderNumber { get; } = Guid.NewGuid();
+
+    [Required] 
+    public OrderStatus Status { get; set; } = OrderStatus.Pending;
     
-    [Required]
-    public string Status { get; set; } = null!;
-    
-    [Required]
-    public string TransactionId { get; set; } = null!;
+    public string? TransactionId { get; set; }
     
     // Relations to other entities
     public List<OrderItem> OrderItems { get; set; } = new();
+    
+    public int? UserId { get; set; }
+    public UserDetails? UserDetails { get; set; }
+}
+
+public enum OrderStatus
+{
+    Pending,
+    Processing,
+    Shipped,
+    Completed,
+    Cancelled,
+    Refunded
 }
 
 public class OrderItem

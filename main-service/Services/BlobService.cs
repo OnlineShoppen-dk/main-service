@@ -4,12 +4,9 @@ using Azure.Storage.Blobs.Models;
 namespace main_service.Services;
 
 /// <summary>
-/// This will be the service that will handle all blob storage
-/// That includes uploading, downloading, and deleting blobs
-/// Blobs are images, videos, and other files that are stored in the cloud
-/// Right now the services returns 0 or 1
-/// 0 means that the operation failed
-/// 1 means that the operation was successful
+/// This will be the service that will handle all, image related operations
+/// At the time of writing, this service only works locally assuming you are running Azurite
+/// 
 /// </summary>
 public interface IBlobService
 {
@@ -53,6 +50,7 @@ public class BlobService : IBlobService
 
     public async Task<(int, string)> UploadImage(string fileName, IFormFile file)
     {
+        Console.WriteLine("Uploading Image");
         using var memoryStream = new MemoryStream();
         await file.CopyToAsync(memoryStream);
         var fileBytes = memoryStream.ToArray();
@@ -106,11 +104,14 @@ public class BlobService : IBlobService
     /// </summary>
     private BlobContainerClient GetBlobContainerClient()
     {
-        var connectionString = _configuration["Azurite:ConnectionString"];
-        var containerName = _configuration["Azurite:Container"];
+        var connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING") ?? _configuration["Azurite:ConnectionString"]; 
+        var containerName = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONTAINER_NAME") ?? _configuration["Azurite:Container"];
+        Console.WriteLine("Connection String: " + connectionString);
+        Console.WriteLine("Container Name: " + containerName);
         var blobServiceClient = new BlobServiceClient(connectionString);
         var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
         containerClient.CreateIfNotExists();
+        Console.WriteLine("Container Created");
         return containerClient;
     }
 }

@@ -23,7 +23,11 @@ public class UserDetails
     [EmailAddress]
     public string Email { get; set; } = null!;
     
-    public string PhoneNumber { get; set; } = null!;
+    public string PhoneNumber { get; set; } = "";
+    
+    // Relations to other entities
+    public List<Order> Orders { get; set; } = new();
+    
 }
 
 public class UserRoles

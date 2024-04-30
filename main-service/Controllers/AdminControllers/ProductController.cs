@@ -14,13 +14,64 @@ namespace main_service.Controllers.AdminControllers;
 [Route("api/admin/[controller]")]
 public class ProductController : BaseAdminController
 {
+    
+    private readonly IBlobService _blobService;
+    
+    [HttpPost]
+    [Route("{productId:int}/add-category/{categoryId:int}")]
+    public async Task<IActionResult> AddCategory(int productId, int categoryId)
+    {
+        var product = await _dbContext.Products.FindAsync(productId);
+        if (product == null) return NotFound("Product not found");
+        
+        var category = await _dbContext.Categories.FindAsync(categoryId);
+        if (category == null) return NotFound("Category not found");
+        
+        product.Categories.Add(category);
+        await _dbContext.SaveChangesAsync();
+        return Ok("Category added to product");
+    }
+    
+    [HttpPost]
+    [Route("{productId:int}/add-image")]
+    public async Task<IActionResult> AddImage(int productId, IFormFile file)
+    {
+        Console.WriteLine("Adding Image");
+        var product = await _dbContext.Products.FindAsync(productId);
+        if (product == null) return NotFound("Product not found");
+        var newFileName = $"{Guid.NewGuid()}_{Path.GetExtension(file.FileName)}_";
+
+        Console.WriteLine("File name: " + newFileName);
+        while (await _blobService.ImageExists(newFileName))
+        {
+            newFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+        }
+
+        var (status, message) = await _blobService.UploadImage(newFileName, file);
+        if (status != 1) return BadRequest(message);
+        // Filename minus file extension
+        var image = new Image
+        {
+            Name = Path.GetFileNameWithoutExtension(file.FileName),
+            FileName = message,
+            Alt = "image",
+        };
+        product.Images.Add(image);
+        await _dbContext.SaveChangesAsync();
+        return Ok("Image added to product");
+    }
+
+    
+    // BASIC CRUD OPERATIONS
+    
     // Get All Products
     [HttpGet]
     public async Task<IActionResult> Get(
         [FromQuery] string? search,
         [FromQuery] int? page,
         [FromQuery] int? pageSize,
-        [FromQuery] string? sort
+        [FromQuery] string? sort,
+        [FromQuery] string? category
     )
     {
         var products = _dbContext.Products
@@ -31,6 +82,12 @@ public class ProductController : BaseAdminController
         if (search != null)
         {
             products = products.Where(x => x.Name.Contains(search));
+        }
+        
+        // Category
+        if (category != null)
+        {
+            products = products.Where(x => x.Categories.Any(c => c.Name == category));
         }
 
         // Sorting
@@ -75,13 +132,17 @@ public class ProductController : BaseAdminController
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(int id)
     {
-        var product = await _dbContext.Products.FindAsync(id);
+        var product = await _dbContext.Products
+            .Include(p => p.Images)
+            .Include(p => p.Categories)
+            .FirstOrDefaultAsync(p => p.Id == id);
         if (product == null)
         {
             return NotFound("Product not found");
         }
 
-        return Ok(product);
+        var productDto = _mapper.Map<ProductDto>(product);
+        return Ok(productDto);
     }
 
     // Create Product
@@ -99,7 +160,7 @@ public class ProductController : BaseAdminController
 
         await _dbContext.Products.AddAsync(product);
         await _dbContext.SaveChangesAsync();
-        _rabbitMqProducer.PublishProductQueue(product);
+        // _rabbitMqProducer.PublishProductQueue(product);
         return Ok(product);
     }
 
@@ -139,7 +200,8 @@ public class ProductController : BaseAdminController
     }
 
 
-    public ProductController(IMapper mapper, ShopDbContext dbContext, IPaginationService paginationService, IRabbitMQProducer rabbitMqProducer) : base(mapper, dbContext, paginationService, rabbitMqProducer)
+    public ProductController(IMapper mapper, ShopDbContext dbContext, IPaginationService paginationService, IRabbitMQProducer rabbitMqProducer, IBlobService blobService) : base(mapper, dbContext, paginationService, rabbitMqProducer)
     {
+        _blobService = blobService;
     }
 }

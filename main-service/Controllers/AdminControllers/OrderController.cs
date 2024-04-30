@@ -24,6 +24,7 @@ public class OrderController : BaseAdminController
     {
 
         var orders = _dbContext.Orders
+            .Include(o => o.OrderItems)
             .AsSplitQuery()
             .AsQueryable();
 
@@ -79,8 +80,6 @@ public class OrderController : BaseAdminController
     {
         var order = new Order
         {
-            OrderNumber = request.OrderNumber,
-            Status = request.Status,
             OrderItems = request.OrderItems,
             TransactionId = request.TransactionId
         };

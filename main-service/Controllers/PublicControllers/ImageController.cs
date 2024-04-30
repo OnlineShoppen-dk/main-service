@@ -21,7 +21,8 @@ public class ImageController : BaseController
     }
 
 
-    public ImageController(IMapper mapper, ShopDbContext dbContext, IPaginationService paginationService, IRabbitMQProducer rabbitMqProducer) : base(mapper, dbContext, paginationService, rabbitMqProducer)
+    public ImageController(IMapper mapper, ShopDbContext dbContext, IPaginationService paginationService, IRabbitMQProducer rabbitMqProducer, IBlobService blobService) : base(mapper, dbContext, paginationService, rabbitMqProducer)
     {
+        _blobService = blobService;
     }
 }
