@@ -77,6 +77,10 @@ public class ShopDbContext : DbContext
             .HasMany(p => p.Images)
             .WithOne(i => i.Product)
             .HasForeignKey(i => i.ProductId);
+        modelBuilder.Entity<Image>()
+            .HasOne(i => i.Product)
+            .WithMany(p => p.Images)
+            .HasForeignKey(i => i.ProductId);
         
         // Order
         modelBuilder.Entity<Order>()
