@@ -13,7 +13,6 @@ public class ProductDto
     public DateTimeOffset UpdatedAt { get; set; }
     public string UpdatedAtFormatted => UpdatedAt.ToString("yyyy-MM-dd - HH:mm:ss");
     public bool Disabled { get; set; }
-    
     public int? ImageId { get; set; }
-    public List<ImageDto> Images { get; set; } = new();
+    public List<ImageDto> Images { get; set; } = null!;
 }
