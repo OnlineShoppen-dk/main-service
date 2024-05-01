@@ -168,6 +168,7 @@ public class ProductController : BaseAdminController
     )
     {
         var products = _dbContext.Products
+            .Include(p => p.Images)
             .AsSplitQuery()
             .AsQueryable();
 
