@@ -199,7 +199,8 @@ public class ProductController : BaseAdminController
                 _ => products.OrderBy(p => p.Id)
             };
         }
-
+        var productTest = await products.ToListAsync();
+        Console.WriteLine(productTest.Count);
         // Pagination
         (products, var pageResult, var pageSizeResult, var totalPages, var totalProducts) =
             _paginationService.ApplyPagination(products, page, pageSize);
