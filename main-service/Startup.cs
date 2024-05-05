@@ -63,8 +63,8 @@ public class Startup
 
         app.UseHttpsRedirection();
         app.UseRouting();
-        app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         app.UseAuthorization();
         app.UseAuthentication();
+        app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
     }
 }

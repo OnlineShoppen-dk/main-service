@@ -34,6 +34,7 @@ public class UserController : BaseUserController
         }
         var user = new UserDetails
         {
+            Guid = request.Guid,
             FirstName = request.FirstName,
             LastName = request.LastName,
             Email = request.Email,
