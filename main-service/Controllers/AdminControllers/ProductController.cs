@@ -251,7 +251,7 @@ public class ProductController : BaseAdminController
 
         await _dbContext.Products.AddAsync(product);
         await _dbContext.SaveChangesAsync();
-        // _rabbitMqProducer.PublishProductQueue(product);
+        _rabbitMqProducer.PublishProductQueue(product);
         return Ok(product);
     }
 
