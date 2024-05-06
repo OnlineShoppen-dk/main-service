@@ -6,19 +6,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace main_service.Models.DomainModels;
 
-[Index(nameof(Name), IsUnique = true)]
+[Index(nameof(name), IsUnique = true)]
 public class Product
 {
     [Key]
-    public int Id { get; set; }
+    public int id { get; set; }
     
     [Required]
     [MaxLength(100)]
-    public string Name { get; set; } = null!;
+    public string name { get; set; } = null!;
     
     [Required]
     [MaxLength(999)]
-    public string Description { get; set; }
+    public string description { get; set; }
     
     [DefaultValue(0)]
     [Precision(14, 2)]

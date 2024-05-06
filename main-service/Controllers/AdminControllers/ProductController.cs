@@ -189,7 +189,7 @@ public class ProductController : BaseAdminController
         // Search
         if (search != null)
         {
-            products = products.Where(x => x.Name.Contains(search));
+            products = products.Where(x => x.name.Contains(search));
         }
         
         // Category
@@ -206,13 +206,13 @@ public class ProductController : BaseAdminController
             {
                 "popularity_asc" => products.OrderBy(p => p.Sold),
                 "popularity_desc" => products.OrderByDescending(p => p.Sold),
-                "name_asc" => products.OrderBy(p => p.Name),
-                "name_desc" => products.OrderByDescending(p => p.Name),
+                "name_asc" => products.OrderBy(p => p.name),
+                "name_desc" => products.OrderByDescending(p => p.name),
                 "price_asc" => products.OrderBy(p => p.Price),
                 "price_desc" => products.OrderByDescending(p => p.Price),
                 "stock_asc" => products.OrderBy(p => p.Stock),
                 "stock_desc" => products.OrderByDescending(p => p.Stock),
-                _ => products.OrderBy(p => p.Id)
+                _ => products.OrderBy(p => p.id)
             };
         }
         var productTest = await products.ToListAsync();
@@ -242,7 +242,7 @@ public class ProductController : BaseAdminController
         var product = await _dbContext.Products
             .Include(p => p.Images)
             .Include(p => p.Categories)
-            .FirstOrDefaultAsync(p => p.Id == id);
+            .FirstOrDefaultAsync(p => p.id == id);
         if (product == null)
         {
             return NotFound("Product not found");
@@ -258,8 +258,8 @@ public class ProductController : BaseAdminController
     {
         var product = new Product
         {
-            Name = request.Name,
-            Description = request.Description,
+            name = request.Name,
+            description = request.Description,
             Price = request.Price,
             Stock = request.Stock,
             Sold = 0
@@ -281,8 +281,8 @@ public class ProductController : BaseAdminController
             return NotFound("Product not found");
         }
 
-        product.Name = request.Name ?? product.Name;
-        product.Description = request.Description ?? product.Description;
+        product.name = request.Name ?? product.name;
+        product.description = request.Description ?? product.description;
         product.Price = request.Price ?? product.Price;
         product.Stock = request.Stock ?? product.Stock;
         product.Sold = request.Sold ?? product.Sold;
