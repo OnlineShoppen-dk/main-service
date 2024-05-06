@@ -17,6 +17,22 @@ public class ProductController : BaseAdminController
     
     private readonly IBlobService _blobService;
     
+    // Sync Product to RabbitMQ
+    [HttpPost]
+    [Route("sync")]
+    public async Task<IActionResult> Sync()
+    {
+        var products = await _dbContext.Products
+            .Include(p => p.Images)
+            .Include(p => p.Categories)
+            .ToListAsync();
+        
+        var productDtos = _mapper.Map<List<ProductDto>>(products);
+        _rabbitMqProducer.SyncProductQueue(productDtos);
+        
+        return Ok("Products synced to RabbitMQ");
+    }
+    
     // Product State Operations
     // These operation are manual operations that can be performed on a product by an admin if needed
     [HttpPost]

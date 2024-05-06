@@ -14,5 +14,6 @@ public class ProductDto
     public string UpdatedAtFormatted => UpdatedAt.ToString("yyyy-MM-dd - HH:mm:ss");
     public bool Disabled { get; set; }
     public int? ImageId { get; set; }
+    public List<CategoryDto> Categories { get; set; } = null!;
     public List<ImageDto> Images { get; set; } = null!;
 }
