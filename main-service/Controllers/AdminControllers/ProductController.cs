@@ -14,9 +14,8 @@ namespace main_service.Controllers.AdminControllers;
 [Route("api/admin/[controller]")]
 public class ProductController : BaseAdminController
 {
-    
     private readonly IBlobService _blobService;
-    
+
     // Sync Product to RabbitMQ
     [HttpPost]
     [Route("sync")]
@@ -32,33 +31,9 @@ public class ProductController : BaseAdminController
         _rabbitMqProducer.SyncProductQueue(serializedProducts);
         return Ok("Products synced to RabbitMQ");
     }
-    
+
     // Product State Operations
     // These operation are manual operations that can be performed on a product by an admin if needed
-    [HttpPost]
-    [Route("{productId:int}/disable")]
-    public async Task<IActionResult> Disable(int productId)
-    {
-        var product = await _dbContext.Products.FindAsync(productId);
-        if (product == null) return NotFound("Product not found");
-        
-        product.Disabled = true;
-        await _dbContext.SaveChangesAsync();
-        return Ok("Product disabled");
-    }
-    
-    [HttpPost]
-    [Route("{productId:int}/enable")]
-    public async Task<IActionResult> Enable(int productId)
-    {
-        var product = await _dbContext.Products.FindAsync(productId);
-        if (product == null) return NotFound("Product not found");
-        
-        product.Disabled = false;
-        await _dbContext.SaveChangesAsync();
-        return Ok("Product enabled");
-    }
-    
     [HttpPost]
     [Route("{productId:int}/sell/{quantity:int}")]
     public async Task<IActionResult> Sell(int productId, int quantity)
@@ -67,9 +42,15 @@ public class ProductController : BaseAdminController
         if (product == null) return NotFound("Product not found");
         product.ProductSale(quantity);
         await _dbContext.SaveChangesAsync();
+
+        // Publish update to RabbitMQ
+        var productDto = _mapper.Map<ProductDto>(product);
+        var deserializeProduct = productDto.ToRepresentation();
+        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
+        
         return Ok("Product sold");
     }
-    
+
     [HttpPost]
     [Route("{productId:int}/restock/{quantity:int}")]
     public async Task<IActionResult> Restock(int productId, int quantity)
@@ -78,9 +59,15 @@ public class ProductController : BaseAdminController
         if (product == null) return NotFound("Product not found");
         product.ProductStockUpdate(quantity);
         await _dbContext.SaveChangesAsync();
+        
+        // Publish update to RabbitMQ
+        var productDto = _mapper.Map<ProductDto>(product);
+        var deserializeProduct = productDto.ToRepresentation();
+        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
+        
         return Ok("Product restocked");
     }
-    
+
     // Product Category Operations
     [HttpPost]
     [Route("{productId:int}/add-category/{categoryId:int}")]
@@ -88,46 +75,42 @@ public class ProductController : BaseAdminController
     {
         var product = await _dbContext.Products.FindAsync(productId);
         if (product == null) return NotFound("Product not found");
-        
+
         var category = await _dbContext.Categories.FindAsync(categoryId);
         if (category == null) return NotFound("Category not found");
-        
+
         product.Categories.Add(category);
         await _dbContext.SaveChangesAsync();
+
+        // Publish update to RabbitMQ
+        var productDto = _mapper.Map<ProductDto>(product);
+        var deserializeProduct = productDto.ToRepresentation();
+        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
+
         return Ok("Category added to product");
     }
-    
+
     [HttpPost]
     [Route("{productId:int}/remove-category/{categoryId:int}")]
     public async Task<IActionResult> RemoveCategory(int productId, int categoryId)
     {
         var product = await _dbContext.Products.FindAsync(productId);
         if (product == null) return NotFound("Product not found");
-        
+
         var category = await _dbContext.Categories.FindAsync(categoryId);
         if (category == null) return NotFound("Category not found");
-        
+
         product.Categories.Remove(category);
         await _dbContext.SaveChangesAsync();
+
+        // Publish update to RabbitMQ
+        var productDto = _mapper.Map<ProductDto>(product);
+        var deserializeProduct = productDto.ToRepresentation();
+        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
+
         return Ok("Category removed from product");
     }
-    
-    // Product Image Operations
-    [HttpPost]
-    [Route("{productId:int}/primary-image/{imageId:int}")]
-    public async Task<IActionResult> SetPrimaryImage(int productId, int imageId)
-    {
-        var product = await _dbContext.Products.FindAsync(productId);
-        if (product == null) return NotFound("Product not found");
-        
-        var image = await _dbContext.Images.FindAsync(imageId);
-        if (image == null) return NotFound("Image not found");
-        
-        product.ImageId = imageId;
-        await _dbContext.SaveChangesAsync();
-        return Ok("Primary image set");
-    }
-    
+
     [HttpPost]
     [Route("{productId:int}/add-image")]
     public async Task<IActionResult> AddImage(int productId, IFormFile file)
@@ -152,25 +135,37 @@ public class ProductController : BaseAdminController
         };
         product.Images.Add(image);
         await _dbContext.SaveChangesAsync();
+
+        // Publish update to RabbitMQ
+        var productDto = _mapper.Map<ProductDto>(product);
+        var deserializeProduct = productDto.ToRepresentation();
+        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
+
         return Ok("Image added to product");
     }
-    
+
     [HttpDelete]
     [Route("{productId:int}/delete-image/{imageId:int}")]
     public async Task<IActionResult> DeleteImage(int productId, int imageId)
     {
         var product = await _dbContext.Products.FindAsync(productId);
         if (product == null) return NotFound("Product not found");
-        
+
         var image = await _dbContext.Images.FindAsync(imageId);
         if (image == null) return NotFound("Image not found");
-        
+
         await _blobService.DeleteImage(image.FileName);
         product.Images.Remove(image);
         await _dbContext.SaveChangesAsync();
+
+        // Publish update to RabbitMQ
+        var productDto = _mapper.Map<ProductDto>(product);
+        var deserializeProduct = productDto.ToRepresentation();
+        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
+
         return Ok("Image deleted");
     }
-    
+
     // BASIC CRUD OPERATIONS
     // Get All Products
     [HttpGet]
@@ -191,13 +186,13 @@ public class ProductController : BaseAdminController
         {
             products = products.Where(x => x.Name.Contains(search));
         }
-        
+
         // Category
         if (category != null)
         {
             products = products.Where(x => x.Categories.Any(c => c.Name == category));
         }
-        
+
 
         // Sorting
         if (sort != null)
@@ -215,6 +210,7 @@ public class ProductController : BaseAdminController
                 _ => products.OrderBy(p => p.Id)
             };
         }
+
         var productTest = await products.ToListAsync();
         Console.WriteLine(productTest.Count);
         // Pagination
@@ -268,9 +264,11 @@ public class ProductController : BaseAdminController
         await _dbContext.Products.AddAsync(product);
         await _dbContext.SaveChangesAsync();
         
+        // Publish update to RabbitMQ
         var productDto = _mapper.Map<ProductDto>(product);
         var deserializeProduct = productDto.ToRepresentation();
         _rabbitMqProducer.PublishProductQueue(deserializeProduct);
+
         return Ok(product);
     }
 
@@ -291,6 +289,12 @@ public class ProductController : BaseAdminController
         product.Sold = request.Sold ?? product.Sold;
         product.Disabled = request.Disabled ?? product.Disabled;
         await _dbContext.SaveChangesAsync();
+
+        // Publish update to RabbitMQ
+        var productDto = _mapper.Map<ProductDto>(product);
+        var deserializeProduct = productDto.ToRepresentation();
+        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
+
         return Ok(product);
     }
 
@@ -304,13 +308,22 @@ public class ProductController : BaseAdminController
             return NotFound("Product not found");
         }
 
+        _rabbitMqProducer.PublishRemoveProductQueue(product);
         _dbContext.Products.Remove(product);
         await _dbContext.SaveChangesAsync();
+
+        // Publish update to RabbitMQ
+        var productDto = _mapper.Map<ProductDto>(product);
+        var deserializeProduct = productDto.ToRepresentation();
+        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
+
         return Ok("Product deleted");
     }
 
 
-    public ProductController(IMapper mapper, ShopDbContext dbContext, IPaginationService paginationService, IRabbitMQProducer rabbitMqProducer, IBlobService blobService) : base(mapper, dbContext, paginationService, rabbitMqProducer)
+    public ProductController(IMapper mapper, ShopDbContext dbContext, IPaginationService paginationService,
+        IRabbitMQProducer rabbitMqProducer, IBlobService blobService) : base(mapper, dbContext, paginationService,
+        rabbitMqProducer)
     {
         _blobService = blobService;
     }

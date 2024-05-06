@@ -21,6 +21,7 @@ namespace main_service.Controllers.UserControllers;
 [Route("api/user/[controller]")]
 public class UserController : BaseUserController
 {
+    
     // Anonymous user actions
     [HttpPost]
     [Route("register")]
@@ -40,9 +41,11 @@ public class UserController : BaseUserController
             Email = request.Email,
             PhoneNumber = request.PhoneNumber ?? "",
         };
+        
         await _dbContext.UserDetails.AddAsync(user);
         await _dbContext.SaveChangesAsync();
-        return Ok(user);
+        var response = _mapper.Map<UserDetailsDto>(user);
+        return Ok(response);
     }
     
     // Authenticated user actions

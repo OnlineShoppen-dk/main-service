@@ -11,7 +11,7 @@ public class ProductDto
     public decimal? Price { get; set; }
     public int? Stock { get; set; }
     public int? Sold { get; set; }
-    public DateTimeOffset CreatedAt { get; set; } 
+    public DateTimeOffset CreatedAt { get; set; }
     public string CreatedAtFormatted => CreatedAt.ToString("yyyy-MM-dd - HH:mm:ss");
     public DateTimeOffset UpdatedAt { get; set; }
     public string UpdatedAtFormatted => UpdatedAt.ToString("yyyy-MM-dd - HH:mm:ss");
@@ -19,7 +19,7 @@ public class ProductDto
     public int? ImageId { get; set; }
     public List<CategoryDto> Categories { get; set; } = null!;
     public List<ImageDto> Images { get; set; } = null!;
-    
+
     public ProductRepresentation ToRepresentation()
     {
         return new ProductRepresentation
@@ -33,16 +33,8 @@ public class ProductDto
             createdAt = CreatedAt,
             updatedAt = UpdatedAt,
             disabled = Disabled,
-            imageId = ImageId
+            imageId = ImageId,
+            images = Images.Select(i => i.ToRepresentation()).ToList()
         };
-    }
-    
-    public string ToLowercaseJson()
-    {
-        var settings = new JsonSerializerSettings
-        {
-            ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
-        };
-        return JsonConvert.SerializeObject(this, settings);
     }
 }

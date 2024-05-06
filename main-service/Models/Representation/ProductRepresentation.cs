@@ -14,4 +14,5 @@ public class ProductRepresentation
     public string updatedAtFormatted => updatedAt.ToString("yyyy-MM-dd - HH:mm:ss");
     public bool disabled { get; set; }
     public int? imageId { get; set; }
+    public List<ImageRepresentation>? images { get; set; }
 }

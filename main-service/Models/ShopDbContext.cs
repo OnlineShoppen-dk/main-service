@@ -1,4 +1,7 @@
-﻿using main_service.Models.DomainModels;
+﻿using AutoMapper;
+using main_service.Models.DomainModels;
+using main_service.Models.DtoModels;
+using main_service.RabbitMQ;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 
@@ -12,9 +15,20 @@ namespace main_service.Models;
 /// </summary>
 public class ShopDbContext : DbContext
 {
-    public ShopDbContext(DbContextOptions<ShopDbContext> options) : base(options)
+    
+    private readonly RabbitMQProducer _rabbitMqProducer;
+    private readonly IMapper _mapper;
+    public ShopDbContext(DbContextOptions<ShopDbContext> options, RabbitMQProducer rabbitMqProducer, IMapper mapper) : base(options)
     {
+        _rabbitMqProducer = rabbitMqProducer;
+        _mapper = mapper;
     }
+
+    private ShopDbContext(DbContextOptions<ShopDbContext> optionsBuilderOptions)
+    {
+        throw new NotImplementedException();
+    }
+
     /// <summary>
     /// From my understanding this was only needed during production
     /// It was necessary for when migration were being made
@@ -40,7 +54,6 @@ public class ShopDbContext : DbContext
     public DbSet<Order> Orders { get; set; } = null!;
     public DbSet<OrderItem> OrderItems { get; set; } = null!;
     public DbSet<Image> Images { get; set; } = null!;
-
     
     /// <summary>
     /// This is used to create relations, indexes etc.

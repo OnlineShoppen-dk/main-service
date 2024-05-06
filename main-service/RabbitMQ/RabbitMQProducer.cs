@@ -8,17 +8,13 @@ public interface IRabbitMQProducer
 {
     // Admin Actions
     // - Products
-    // - - Sync
     public void SyncProductQueue<T>(T message);
-    
+    // TODO: PublishProductQueue is the same as PublishAddProductQueue, so we can remove one of them
     public void PublishProductQueue<T>(T message);
-    
-    // addProductQueue
     public void PublishAddProductQueue<T>(T message);
-    // updateProductQueue
     public void PublishUpdateProductQueue<T>(T message);
-    // removeProductQueue
     public void PublishRemoveProductQueue<T>(T message);
+    
 }
 
 public class RabbitMQProducer : IRabbitMQProducer
@@ -153,10 +149,10 @@ public class RabbitMQProducer : IRabbitMQProducer
 
     public void PublishRemoveProductQueue<T>(T message)
     {
-        var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
-        var productQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_QUEUE") ?? "productQueue";
-        var user = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? "user";
-        var password = Environment.GetEnvironmentVariable("RABBITMQ_PASS") ?? "userpass";
+        var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST");
+        var productQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_REMOVE_QUEUE");
+        var user = Environment.GetEnvironmentVariable("RABBITMQ_USER");
+        var password = Environment.GetEnvironmentVariable("RABBITMQ_PASS");
         
         var factory = new ConnectionFactory()
         {
@@ -180,37 +176,4 @@ public class RabbitMQProducer : IRabbitMQProducer
         channel.Close();
         connection.Close();
     }
-    
-
-    /*
-    EXAMPLE USAGE:
-    public void PublishMessage<T>(T message)
-    {
-
-        channel.BasicPublish(exchange: "", routingKey: "test", body: body);
-        var consumer = new EventingBasicConsumer(channel);
-        consumer.Received += (model, ea) =>
-        {
-            var body = ea.Body.ToArray();
-            var message = Encoding.UTF8.GetString(body);
-            Console.WriteLine("Received: {0}", message);
-        };
-        channel.BasicConsume(queue: productQueue,
-            autoAck: true,
-            consumer: consumer);
-        
-        Console.WriteLine(" [x] Sent {0}", json);
-        
-    }
-    
-    public void PublishNewProductMessage<T>(T message)
-    {
-        throw new NotImplementedException();
-    }
-
-    public void PublishUpdateProductMessage<T>(T message)
-    {
-        throw new NotImplementedException();
-    }
-    */
 }
