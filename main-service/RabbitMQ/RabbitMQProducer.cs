@@ -63,10 +63,10 @@ public class RabbitMQProducer : IRabbitMQProducer
     
     public void PublishProductQueue<T>(T message)
     {
-        var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST");
-        var productQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_QUEUE");
-        var user = Environment.GetEnvironmentVariable("RABBITMQ_USER");
-        var password = Environment.GetEnvironmentVariable("RABBITMQ_PASS");
+        var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+        var productQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_QUEUE") ?? "productQueue";
+        var user = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? "user";
+        var password = Environment.GetEnvironmentVariable("RABBITMQ_PASS") ?? "userpass";
         
         var factory = new ConnectionFactory()
         {
@@ -153,10 +153,10 @@ public class RabbitMQProducer : IRabbitMQProducer
 
     public void PublishRemoveProductQueue<T>(T message)
     {
-        var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST");
-        var productQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_REMOVE_QUEUE");
-        var user = Environment.GetEnvironmentVariable("RABBITMQ_USER");
-        var password = Environment.GetEnvironmentVariable("RABBITMQ_PASS");
+        var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+        var productQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_QUEUE") ?? "productQueue";
+        var user = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? "user";
+        var password = Environment.GetEnvironmentVariable("RABBITMQ_PASS") ?? "userpass";
         
         var factory = new ConnectionFactory()
         {

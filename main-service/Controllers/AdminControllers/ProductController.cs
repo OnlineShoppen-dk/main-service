@@ -28,7 +28,7 @@ public class ProductController : BaseAdminController
             .ToListAsync();
 
         var productDto = _mapper.Map<List<ProductDto>>(products);
-        var serializedProducts = productDto.Select(p => p.ToLowercaseJson());
+        var serializedProducts = productDto.Select(p => p.ToRepresentation());
         _rabbitMqProducer.SyncProductQueue(serializedProducts);
         return Ok("Products synced to RabbitMQ");
     }
@@ -269,7 +269,7 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
         
         var productDto = _mapper.Map<ProductDto>(product);
-        var deserializeProduct = productDto.ToLowercaseJson();
+        var deserializeProduct = productDto.ToRepresentation();
         _rabbitMqProducer.PublishProductQueue(deserializeProduct);
         return Ok(product);
     }

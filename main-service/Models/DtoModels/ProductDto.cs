@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using main_service.Models.Representation;
+using Newtonsoft.Json;
 
 namespace main_service.Models.DtoModels;
 
@@ -18,6 +19,23 @@ public class ProductDto
     public int? ImageId { get; set; }
     public List<CategoryDto> Categories { get; set; } = null!;
     public List<ImageDto> Images { get; set; } = null!;
+    
+    public ProductRepresentation ToRepresentation()
+    {
+        return new ProductRepresentation
+        {
+            id = Id,
+            name = Name,
+            description = Description,
+            price = Price,
+            stock = Stock,
+            sold = Sold,
+            createdAt = CreatedAt,
+            updatedAt = UpdatedAt,
+            disabled = Disabled,
+            imageId = ImageId
+        };
+    }
     
     public string ToLowercaseJson()
     {
