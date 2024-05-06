@@ -23,8 +23,8 @@ public class ProductController : BaseAdminController
     public async Task<IActionResult> Sync()
     {
         var products = await _dbContext.Products
-            .Include(p => p.Images)
-            .Include(p => p.Categories)
+            .Include(p => p.images)
+            .Include(p => p.categories)
             .ToListAsync();
         
         var productDtos = _mapper.Map<List<ProductDto>>(products);
@@ -42,7 +42,7 @@ public class ProductController : BaseAdminController
         var product = await _dbContext.Products.FindAsync(productId);
         if (product == null) return NotFound("Product not found");
         
-        product.Disabled = true;
+        product.disabled = true;
         await _dbContext.SaveChangesAsync();
         return Ok("Product disabled");
     }
@@ -54,7 +54,7 @@ public class ProductController : BaseAdminController
         var product = await _dbContext.Products.FindAsync(productId);
         if (product == null) return NotFound("Product not found");
         
-        product.Disabled = false;
+        product.disabled = false;
         await _dbContext.SaveChangesAsync();
         return Ok("Product enabled");
     }
@@ -92,7 +92,7 @@ public class ProductController : BaseAdminController
         var category = await _dbContext.Categories.FindAsync(categoryId);
         if (category == null) return NotFound("Category not found");
         
-        product.Categories.Add(category);
+        product.categories.Add(category);
         await _dbContext.SaveChangesAsync();
         return Ok("Category added to product");
     }
@@ -107,7 +107,7 @@ public class ProductController : BaseAdminController
         var category = await _dbContext.Categories.FindAsync(categoryId);
         if (category == null) return NotFound("Category not found");
         
-        product.Categories.Remove(category);
+        product.categories.Remove(category);
         await _dbContext.SaveChangesAsync();
         return Ok("Category removed from product");
     }
@@ -150,7 +150,7 @@ public class ProductController : BaseAdminController
             FileName = message,
             Alt = "image",
         };
-        product.Images.Add(image);
+        product.images.Add(image);
         await _dbContext.SaveChangesAsync();
         return Ok("Image added to product");
     }
@@ -166,7 +166,7 @@ public class ProductController : BaseAdminController
         if (image == null) return NotFound("Image not found");
         
         await _blobService.DeleteImage(image.FileName);
-        product.Images.Remove(image);
+        product.images.Remove(image);
         await _dbContext.SaveChangesAsync();
         return Ok("Image deleted");
     }
@@ -183,7 +183,7 @@ public class ProductController : BaseAdminController
     )
     {
         var products = _dbContext.Products
-            .Include(p => p.Images)
+            .Include(p => p.images)
             .AsSplitQuery()
             .AsQueryable();
         // Search
@@ -195,7 +195,7 @@ public class ProductController : BaseAdminController
         // Category
         if (category != null)
         {
-            products = products.Where(x => x.Categories.Any(c => c.Name == category));
+            products = products.Where(x => x.categories.Any(c => c.Name == category));
         }
         
 
@@ -204,14 +204,14 @@ public class ProductController : BaseAdminController
         {
             products = sort switch
             {
-                "popularity_asc" => products.OrderBy(p => p.Sold),
-                "popularity_desc" => products.OrderByDescending(p => p.Sold),
+                "popularity_asc" => products.OrderBy(p => p.sold),
+                "popularity_desc" => products.OrderByDescending(p => p.sold),
                 "name_asc" => products.OrderBy(p => p.name),
                 "name_desc" => products.OrderByDescending(p => p.name),
-                "price_asc" => products.OrderBy(p => p.Price),
-                "price_desc" => products.OrderByDescending(p => p.Price),
-                "stock_asc" => products.OrderBy(p => p.Stock),
-                "stock_desc" => products.OrderByDescending(p => p.Stock),
+                "price_asc" => products.OrderBy(p => p.price),
+                "price_desc" => products.OrderByDescending(p => p.price),
+                "stock_asc" => products.OrderBy(p => p.stock),
+                "stock_desc" => products.OrderByDescending(p => p.stock),
                 _ => products.OrderBy(p => p.id)
             };
         }
@@ -240,8 +240,8 @@ public class ProductController : BaseAdminController
     public async Task<IActionResult> Get(int id)
     {
         var product = await _dbContext.Products
-            .Include(p => p.Images)
-            .Include(p => p.Categories)
+            .Include(p => p.images)
+            .Include(p => p.categories)
             .FirstOrDefaultAsync(p => p.id == id);
         if (product == null)
         {
@@ -260,9 +260,9 @@ public class ProductController : BaseAdminController
         {
             name = request.Name,
             description = request.Description,
-            Price = request.Price,
-            Stock = request.Stock,
-            Sold = 0
+            price = request.Price,
+            stock = request.Stock,
+            sold = 0
         };
 
         await _dbContext.Products.AddAsync(product);
@@ -283,10 +283,10 @@ public class ProductController : BaseAdminController
 
         product.name = request.Name ?? product.name;
         product.description = request.Description ?? product.description;
-        product.Price = request.Price ?? product.Price;
-        product.Stock = request.Stock ?? product.Stock;
-        product.Sold = request.Sold ?? product.Sold;
-        product.Disabled = request.Disabled ?? product.Disabled;
+        product.price = request.Price ?? product.price;
+        product.stock = request.Stock ?? product.stock;
+        product.sold = request.Sold ?? product.sold;
+        product.disabled = request.Disabled ?? product.disabled;
         await _dbContext.SaveChangesAsync();
         return Ok(product);
     }

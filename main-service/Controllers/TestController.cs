@@ -51,8 +51,8 @@ public class TestController : BaseController
             {
                 name = $"Product {i + 1}",
                 description = $"Product Description {i + 1}",
-                Price = 1000,
-                Stock = 100,
+                price = 1000,
+                stock = 100,
             };
             productList.Add(product);
         }
