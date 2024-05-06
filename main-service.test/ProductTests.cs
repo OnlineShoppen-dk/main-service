@@ -29,16 +29,16 @@ public class ProductTests
         // Act
         var product = new Product
         {
-            name = productRequest.Name,
-            description = productRequest.Description
+            Name = productRequest.Name,
+            Description = productRequest.Description
         };
         dbContext.Products.Add(product);
         dbContext.SaveChanges();
         // Assert
         Assert.NotNull(product);
-        Assert.Equal(productRequest.Name, product.name);
+        Assert.Equal(productRequest.Name, product.Name);
         productRequest.Name = "Create Product2";
-        Assert.NotEqual(productRequest.Name, product.name);
+        Assert.NotEqual(productRequest.Name, product.Name);
     }
 
     [Fact]
@@ -53,19 +53,19 @@ public class ProductTests
         };
         var product = new Product
         {
-            name = productRequest.Name,
-            description = productRequest.Description
+            Name = productRequest.Name,
+            Description = productRequest.Description
         };
         dbContext.Products.Add(product);
         dbContext.SaveChanges();
         
         // Act
         productRequest.Name = "Update Product2";
-        product.name = productRequest.Name;
+        product.Name = productRequest.Name;
         dbContext.SaveChanges();
         
         // Assert
         Assert.NotNull(product);
-        Assert.Equal(productRequest.Name, product.name);
+        Assert.Equal(productRequest.Name, product.Name);
     }
 }

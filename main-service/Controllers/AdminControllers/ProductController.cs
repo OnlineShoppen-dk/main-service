@@ -23,13 +23,13 @@ public class ProductController : BaseAdminController
     public async Task<IActionResult> Sync()
     {
         var products = await _dbContext.Products
-            .Include(p => p.images)
-            .Include(p => p.categories)
+            .Include(p => p.Images)
+            .Include(p => p.Categories)
             .ToListAsync();
-        
-        var productDtos = _mapper.Map<List<ProductDto>>(products);
-        _rabbitMqProducer.SyncProductQueue(productDtos);
-        
+
+        var productDto = _mapper.Map<List<ProductDto>>(products);
+        var serializedProducts = productDto.Select(p => p.ToLowercaseJson());
+        _rabbitMqProducer.SyncProductQueue(serializedProducts);
         return Ok("Products synced to RabbitMQ");
     }
     
@@ -42,7 +42,7 @@ public class ProductController : BaseAdminController
         var product = await _dbContext.Products.FindAsync(productId);
         if (product == null) return NotFound("Product not found");
         
-        product.disabled = true;
+        product.Disabled = true;
         await _dbContext.SaveChangesAsync();
         return Ok("Product disabled");
     }
@@ -54,7 +54,7 @@ public class ProductController : BaseAdminController
         var product = await _dbContext.Products.FindAsync(productId);
         if (product == null) return NotFound("Product not found");
         
-        product.disabled = false;
+        product.Disabled = false;
         await _dbContext.SaveChangesAsync();
         return Ok("Product enabled");
     }
@@ -92,7 +92,7 @@ public class ProductController : BaseAdminController
         var category = await _dbContext.Categories.FindAsync(categoryId);
         if (category == null) return NotFound("Category not found");
         
-        product.categories.Add(category);
+        product.Categories.Add(category);
         await _dbContext.SaveChangesAsync();
         return Ok("Category added to product");
     }
@@ -107,7 +107,7 @@ public class ProductController : BaseAdminController
         var category = await _dbContext.Categories.FindAsync(categoryId);
         if (category == null) return NotFound("Category not found");
         
-        product.categories.Remove(category);
+        product.Categories.Remove(category);
         await _dbContext.SaveChangesAsync();
         return Ok("Category removed from product");
     }
@@ -150,7 +150,7 @@ public class ProductController : BaseAdminController
             FileName = message,
             Alt = "image",
         };
-        product.images.Add(image);
+        product.Images.Add(image);
         await _dbContext.SaveChangesAsync();
         return Ok("Image added to product");
     }
@@ -166,7 +166,7 @@ public class ProductController : BaseAdminController
         if (image == null) return NotFound("Image not found");
         
         await _blobService.DeleteImage(image.FileName);
-        product.images.Remove(image);
+        product.Images.Remove(image);
         await _dbContext.SaveChangesAsync();
         return Ok("Image deleted");
     }
@@ -183,19 +183,19 @@ public class ProductController : BaseAdminController
     )
     {
         var products = _dbContext.Products
-            .Include(p => p.images)
+            .Include(p => p.Images)
             .AsSplitQuery()
             .AsQueryable();
         // Search
         if (search != null)
         {
-            products = products.Where(x => x.name.Contains(search));
+            products = products.Where(x => x.Name.Contains(search));
         }
         
         // Category
         if (category != null)
         {
-            products = products.Where(x => x.categories.Any(c => c.Name == category));
+            products = products.Where(x => x.Categories.Any(c => c.Name == category));
         }
         
 
@@ -204,15 +204,15 @@ public class ProductController : BaseAdminController
         {
             products = sort switch
             {
-                "popularity_asc" => products.OrderBy(p => p.sold),
-                "popularity_desc" => products.OrderByDescending(p => p.sold),
-                "name_asc" => products.OrderBy(p => p.name),
-                "name_desc" => products.OrderByDescending(p => p.name),
-                "price_asc" => products.OrderBy(p => p.price),
-                "price_desc" => products.OrderByDescending(p => p.price),
-                "stock_asc" => products.OrderBy(p => p.stock),
-                "stock_desc" => products.OrderByDescending(p => p.stock),
-                _ => products.OrderBy(p => p.id)
+                "popularity_asc" => products.OrderBy(p => p.Sold),
+                "popularity_desc" => products.OrderByDescending(p => p.Sold),
+                "name_asc" => products.OrderBy(p => p.Name),
+                "name_desc" => products.OrderByDescending(p => p.Name),
+                "price_asc" => products.OrderBy(p => p.Price),
+                "price_desc" => products.OrderByDescending(p => p.Price),
+                "stock_asc" => products.OrderBy(p => p.Stock),
+                "stock_desc" => products.OrderByDescending(p => p.Stock),
+                _ => products.OrderBy(p => p.Id)
             };
         }
         var productTest = await products.ToListAsync();
@@ -240,9 +240,9 @@ public class ProductController : BaseAdminController
     public async Task<IActionResult> Get(int id)
     {
         var product = await _dbContext.Products
-            .Include(p => p.images)
-            .Include(p => p.categories)
-            .FirstOrDefaultAsync(p => p.id == id);
+            .Include(p => p.Images)
+            .Include(p => p.Categories)
+            .FirstOrDefaultAsync(p => p.Id == id);
         if (product == null)
         {
             return NotFound("Product not found");
@@ -258,16 +258,19 @@ public class ProductController : BaseAdminController
     {
         var product = new Product
         {
-            name = request.Name,
-            description = request.Description,
-            price = request.Price,
-            stock = request.Stock,
-            sold = 0
+            Name = request.Name,
+            Description = request.Description,
+            Price = request.Price,
+            Stock = request.Stock,
+            Sold = 0
         };
 
         await _dbContext.Products.AddAsync(product);
         await _dbContext.SaveChangesAsync();
-        _rabbitMqProducer.PublishProductQueue(product);
+        
+        var productDto = _mapper.Map<ProductDto>(product);
+        var deserializeProduct = productDto.ToLowercaseJson();
+        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
         return Ok(product);
     }
 
@@ -281,12 +284,12 @@ public class ProductController : BaseAdminController
             return NotFound("Product not found");
         }
 
-        product.name = request.Name ?? product.name;
-        product.description = request.Description ?? product.description;
-        product.price = request.Price ?? product.price;
-        product.stock = request.Stock ?? product.stock;
-        product.sold = request.Sold ?? product.sold;
-        product.disabled = request.Disabled ?? product.disabled;
+        product.Name = request.Name ?? product.Name;
+        product.Description = request.Description ?? product.Description;
+        product.Price = request.Price ?? product.Price;
+        product.Stock = request.Stock ?? product.Stock;
+        product.Sold = request.Sold ?? product.Sold;
+        product.Disabled = request.Disabled ?? product.Disabled;
         await _dbContext.SaveChangesAsync();
         return Ok(product);
     }

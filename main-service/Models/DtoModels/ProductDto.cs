@@ -1,4 +1,6 @@
-﻿namespace main_service.Models.DtoModels;
+﻿using Newtonsoft.Json;
+
+namespace main_service.Models.DtoModels;
 
 public class ProductDto
 {
@@ -16,4 +18,13 @@ public class ProductDto
     public int? ImageId { get; set; }
     public List<CategoryDto> Categories { get; set; } = null!;
     public List<ImageDto> Images { get; set; } = null!;
+    
+    public string ToLowercaseJson()
+    {
+        var settings = new JsonSerializerSettings
+        {
+            ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver()
+        };
+        return JsonConvert.SerializeObject(this, settings);
+    }
 }

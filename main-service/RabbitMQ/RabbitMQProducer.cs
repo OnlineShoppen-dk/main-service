@@ -1,11 +1,6 @@
 ﻿using System.Text;
-using main_service.Models;
-using main_service.Models.DomainModels;
-using main_service.Models.DtoModels;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 
 namespace main_service.RabbitMQ;
 
@@ -14,7 +9,7 @@ public interface IRabbitMQProducer
     // Admin Actions
     // - Products
     // - - Sync
-    public void SyncProductQueue(List<ProductDto> products);
+    public void SyncProductQueue<T>(T message);
     
     public void PublishProductQueue<T>(T message);
     
@@ -35,7 +30,7 @@ public class RabbitMQProducer : IRabbitMQProducer
         _configuration = configuration;
     }
     
-    public void SyncProductQueue(List<ProductDto> products)
+    public void SyncProductQueue<T>(T message)
     {
         var hostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST");
         var productQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_QUEUE");
@@ -59,7 +54,7 @@ public class RabbitMQProducer : IRabbitMQProducer
             autoDelete: false,
             arguments: null);
         
-        var json = JsonConvert.SerializeObject(products);
+        var json = JsonConvert.SerializeObject(message);
         var body = Encoding.UTF8.GetBytes(json);
         channel.BasicPublish(exchange: "", routingKey: productQueue, body: body);
         channel.Close();

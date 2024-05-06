@@ -51,7 +51,7 @@ public class ShopDbContext : DbContext
         
         // Products & Categories Relation (Many to Many)
         modelBuilder.Entity<Product>()
-            .HasMany(p => p.categories)
+            .HasMany(p => p.Categories)
             .WithMany(c => c.Products);
         
         // Order & OrderItem Relation (One to Many)
@@ -63,7 +63,7 @@ public class ShopDbContext : DbContext
         // OrderItem & Product Relation (Many to One)
         modelBuilder.Entity<OrderItem>()
             .HasOne(oi => oi.Product)
-            .WithMany(p => p.orderItems)
+            .WithMany(p => p.OrderItems)
             .HasForeignKey(oi => oi.ProductId);
         
         // User & Order Relation (One to Many)
@@ -74,12 +74,12 @@ public class ShopDbContext : DbContext
         
         // Image & Product Relation (One to Many)
         modelBuilder.Entity<Product>()
-            .HasMany(p => p.images)
+            .HasMany(p => p.Images)
             .WithOne(i => i.Product)
             .HasForeignKey(i => i.ProductId);
         modelBuilder.Entity<Image>()
             .HasOne(i => i.Product)
-            .WithMany(p => p.images)
+            .WithMany(p => p.Images)
             .HasForeignKey(i => i.ProductId);
         
         // Order

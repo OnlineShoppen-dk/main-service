@@ -6,62 +6,62 @@ using Microsoft.EntityFrameworkCore;
 
 namespace main_service.Models.DomainModels;
 
-[Index(nameof(name), IsUnique = true)]
+[Index(nameof(Name), IsUnique = true)]
 public class Product
 {
     [Key]
-    public int id { get; set; }
+    public int Id { get; set; }
     
     [Required]
     [MaxLength(100)]
-    public string name { get; set; } = null!;
+    public string Name { get; set; } = null!;
     
     [Required]
     [MaxLength(999)]
-    public string description { get; set; }
+    public string Description { get; set; }
     
     [DefaultValue(0)]
     [Precision(14, 2)]
-    public decimal? price { get; set; }
+    public decimal? Price { get; set; }
     
     [DefaultValue(0)]
     [Range(0, int.MaxValue)]
-    public int? stock { get; set; } = 0;
+    public int? Stock { get; set; } = 0;
     
     [DefaultValue(0)]
     [Range(0, int.MaxValue)]
-    public int? sold { get; set; } = 0;
+    public int? Sold { get; set; } = 0;
     
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public DateTimeOffset createdAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
-    public DateTimeOffset updatedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
     
     [DefaultValue(false)]
-    public bool disabled { get; set; }
+    public bool Disabled { get; set; }
     
     // The thumbnail / main image of the product
     // if not set, the first image in the list will be used
     public int? ImageId { get; set; }
     
     // Relations to other entities
-    public List<Image> images { get; set; } = new();
-    public List<Category> categories { get; set; } = new();
-    public List<OrderItem> orderItems { get; set; } = new();
+    public List<Image> Images { get; set; } = new();
+    public List<Category> Categories { get; set; } = new();
+    public List<OrderItem> OrderItems { get; set; } = new();
     
     // Functions
     public void ProductSale(int quantity)
     {
-        sold += quantity;
-        stock -= quantity;
+        Sold += quantity;
+        Stock -= quantity;
     }
     public void ProductSaleCancel(int quantity)
     {
-        sold -= quantity;
-        stock += quantity;
+        Sold -= quantity;
+        Stock += quantity;
     }
     public void ProductStockUpdate(int quantity)
     {
-        stock += quantity;
+        Stock += quantity;
     }
 }
