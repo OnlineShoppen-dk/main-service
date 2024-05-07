@@ -16,19 +16,11 @@ namespace main_service.Models;
 public class ShopDbContext : DbContext
 {
     
-    private readonly RabbitMQProducer _rabbitMqProducer;
-    private readonly IMapper _mapper;
-    public ShopDbContext(DbContextOptions<ShopDbContext> options, RabbitMQProducer rabbitMqProducer, IMapper mapper) : base(options)
-    {
-        _rabbitMqProducer = rabbitMqProducer;
-        _mapper = mapper;
-    }
 
-    private ShopDbContext(DbContextOptions<ShopDbContext> optionsBuilderOptions)
+    public ShopDbContext(DbContextOptions<ShopDbContext> options) : base(options)
     {
-        throw new NotImplementedException();
     }
-
+    
     /// <summary>
     /// From my understanding this was only needed during production
     /// It was necessary for when migration were being made
