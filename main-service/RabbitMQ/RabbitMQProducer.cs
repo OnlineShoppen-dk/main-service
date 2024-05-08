@@ -9,8 +9,7 @@ public interface IRabbitMQProducer
     // Admin Actions
     // - Products
     public void SyncProductQueue<T>(T message);
-    public void PublishAddProductQueue<T>(T message);
-    public void PublishUpdateProductQueue<T>(T message);
+    public void PublishProductQueue<T>(T message);
     public void PublishRemoveProductQueue<T>(T message);
     
 }
@@ -24,8 +23,7 @@ public class RabbitMQProducer : IRabbitMQProducer
     
     // Queues
     private readonly string _syncProductQueue;
-    private readonly string _addProductQueue;
-    private readonly string _updateProductQueue;
+    private readonly string _productQueue;
     private readonly string _removeProductQueue;
     
     private readonly IConfiguration _configuration;
@@ -33,16 +31,15 @@ public class RabbitMQProducer : IRabbitMQProducer
     public RabbitMQProducer(IConfiguration configuration)
     {
         _configuration = configuration;
-        
+
         // Setup configurations
         _host = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "";
         _user = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? "";
         _pass = Environment.GetEnvironmentVariable("RABBITMQ_PASS") ?? "";
         
         // Setup queues
+        _productQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_QUEUE") ?? "";
         _syncProductQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_SYNC_QUEUE") ?? "";
-        _addProductQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_ADD_QUEUE") ?? "";
-        _updateProductQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_UPDATE_QUEUE") ?? "";
         _removeProductQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_REMOVE_QUEUE") ?? "";
     }
     
@@ -72,7 +69,7 @@ public class RabbitMQProducer : IRabbitMQProducer
         connection.Close();
     }
 
-    public void PublishAddProductQueue<T>(T message)
+    public void PublishProductQueue<T>(T message)
     {
         Console.WriteLine("Publishing Add Product");
         var factory = new ConnectionFactory()
@@ -85,7 +82,7 @@ public class RabbitMQProducer : IRabbitMQProducer
         var connection = factory.CreateConnection();
         using var channel = connection.CreateModel();
         
-        channel.QueueDeclare(queue: _addProductQueue,
+        channel.QueueDeclare(queue: _productQueue,
             durable: true,
             exclusive: false,
             autoDelete: false,
@@ -93,32 +90,7 @@ public class RabbitMQProducer : IRabbitMQProducer
         
         var json = JsonConvert.SerializeObject(message);
         var body = Encoding.UTF8.GetBytes(json);
-        channel.BasicPublish(exchange: "", routingKey: _addProductQueue, body: body);
-        channel.Close();
-        connection.Close();
-    }
-
-    public void PublishUpdateProductQueue<T>(T message)
-    {
-        var factory = new ConnectionFactory()
-        {
-            HostName = _host,
-            UserName = _user,
-            Password = _pass
-        };
-        
-        var connection = factory.CreateConnection();
-        using var channel = connection.CreateModel();
-        
-        channel.QueueDeclare(queue: _updateProductQueue,
-            durable: true,
-            exclusive: false,
-            autoDelete: false,
-            arguments: null);
-        
-        var json = JsonConvert.SerializeObject(message);
-        var body = Encoding.UTF8.GetBytes(json);
-        channel.BasicPublish(exchange: "", routingKey: _updateProductQueue, body: body);
+        channel.BasicPublish(exchange: "", routingKey: _productQueue, body: body);
         channel.Close();
         connection.Close();
     }

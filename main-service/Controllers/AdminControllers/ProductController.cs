@@ -34,40 +34,7 @@ public class ProductController : BaseAdminController
 
     // Product State Operations
     // These operation are manual operations that can be performed on a product by an admin if needed
-    [HttpPost]
-    [Route("{productId:int}/sell/{quantity:int}")]
-    public async Task<IActionResult> Sell(int productId, int quantity)
-    {
-        var product = await _dbContext.Products.FindAsync(productId);
-        if (product == null) return NotFound("Product not found");
-        product.ProductSale(quantity);
-        await _dbContext.SaveChangesAsync();
-
-        // Publish update to RabbitMQ
-        var productDto = _mapper.Map<ProductDto>(product);
-        var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
-        
-        return Ok("Product sold");
-    }
-
-    [HttpPost]
-    [Route("{productId:int}/restock/{quantity:int}")]
-    public async Task<IActionResult> Restock(int productId, int quantity)
-    {
-        var product = await _dbContext.Products.FindAsync(productId);
-        if (product == null) return NotFound("Product not found");
-        product.ProductStockUpdate(quantity);
-        await _dbContext.SaveChangesAsync();
-        
-        // Publish update to RabbitMQ
-        var productDto = _mapper.Map<ProductDto>(product);
-        var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
-        
-        return Ok("Product restocked");
-    }
-
+    
     // Product Category Operations
     [HttpPost]
     [Route("{productId:int}/add-category/{categoryId:int}")]
@@ -85,7 +52,7 @@ public class ProductController : BaseAdminController
         // Publish update to RabbitMQ
         var productDto = _mapper.Map<ProductDto>(product);
         var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
+        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
 
         return Ok("Category added to product");
     }
@@ -106,7 +73,7 @@ public class ProductController : BaseAdminController
         // Publish update to RabbitMQ
         var productDto = _mapper.Map<ProductDto>(product);
         var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
+        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
 
         return Ok("Category removed from product");
     }
@@ -139,7 +106,7 @@ public class ProductController : BaseAdminController
         // Publish update to RabbitMQ
         var productDto = _mapper.Map<ProductDto>(product);
         var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
+        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
 
         return Ok("Image added to product");
     }
@@ -161,7 +128,7 @@ public class ProductController : BaseAdminController
         // Publish update to RabbitMQ
         var productDto = _mapper.Map<ProductDto>(product);
         var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
+        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
 
         return Ok("Image deleted");
     }
@@ -267,7 +234,7 @@ public class ProductController : BaseAdminController
         // Publish update to RabbitMQ
         var productDto = _mapper.Map<ProductDto>(product);
         var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishAddProductQueue(deserializeProduct);
+        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
 
         return Ok(product);
     }
@@ -293,7 +260,7 @@ public class ProductController : BaseAdminController
         // Publish update to RabbitMQ
         var productDto = _mapper.Map<ProductDto>(product);
         var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
+        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
 
         return Ok(product);
     }
@@ -315,7 +282,7 @@ public class ProductController : BaseAdminController
         // Publish update to RabbitMQ
         var productDto = _mapper.Map<ProductDto>(product);
         var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishUpdateProductQueue(deserializeProduct);
+        _rabbitMqProducer.PublishRemoveProductQueue(deserializeProduct);
 
         return Ok("Product deleted");
     }
