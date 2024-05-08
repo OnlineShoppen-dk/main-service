@@ -1,8 +1,5 @@
-﻿using System.IO.Hashing;
-using System.Text.Json.Serialization;
-using main_service.Configurations;
+﻿using main_service.Configurations;
 using main_service.Models;
-using main_service.RabbitMQ;
 using Microsoft.EntityFrameworkCore;
 
 namespace main_service;

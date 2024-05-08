@@ -9,9 +9,11 @@ public class ProductRepresentation
     public int? stock { get; set; }
     public int? sold { get; set; }
     public DateTimeOffset createdAt { get; set; } 
-    public string createdAtFormatted => createdAt.ToString("yyyy-MM-dd - HH:mm:ss");
+    public string createdAtDate => createdAt.ToString("yyyy-MM-dd ");
+    public string createdAtTime => createdAt.ToString("HH:mm:ss");
     public DateTimeOffset updatedAt { get; set; }
-    public string updatedAtFormatted => updatedAt.ToString("yyyy-MM-dd - HH:mm:ss");
+    public string updatedAtDate => updatedAt.ToString("yyyy-MM-dd ");
+    public string updatedAtTime => updatedAt.ToString("HH:mm:ss");
     public bool disabled { get; set; }
     public int? imageId { get; set; }
     public List<ImageRepresentation>? images { get; set; }

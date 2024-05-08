@@ -267,7 +267,7 @@ public class ProductController : BaseAdminController
         // Publish update to RabbitMQ
         var productDto = _mapper.Map<ProductDto>(product);
         var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
+        _rabbitMqProducer.PublishAddProductQueue(deserializeProduct);
 
         return Ok(product);
     }

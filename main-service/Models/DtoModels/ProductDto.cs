@@ -1,5 +1,4 @@
 ﻿using main_service.Models.Representation;
-using Newtonsoft.Json;
 
 namespace main_service.Models.DtoModels;
 
@@ -12,9 +11,11 @@ public class ProductDto
     public int? Stock { get; set; }
     public int? Sold { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
-    public string CreatedAtFormatted => CreatedAt.ToString("yyyy-MM-dd - HH:mm:ss");
+    public string CreatedAtDate => CreatedAt.ToString("yyyy-MM-dd ");
+    public string CreatedAtTime => CreatedAt.ToString("HH:mm:ss");
     public DateTimeOffset UpdatedAt { get; set; }
-    public string UpdatedAtFormatted => UpdatedAt.ToString("yyyy-MM-dd - HH:mm:ss");
+    public string UpdatedAtDate => UpdatedAt.ToString("yyyy-MM-dd ");
+    public string UpdatedAtTime => UpdatedAt.ToString("HH:mm:ss");
     public bool Disabled { get; set; }
     public int? ImageId { get; set; }
     public List<CategoryDto> Categories { get; set; } = null!;
