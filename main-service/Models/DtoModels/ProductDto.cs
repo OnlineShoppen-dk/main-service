@@ -17,7 +17,7 @@ public class ProductDto
     public DateTimeOffset UpdatedAt { get; set; }
     public string UpdatedAtDate => UpdatedAt.ToString("yyyy-MM-dd ");
     public string UpdatedAtTime => UpdatedAt.ToString("HH:mm:ss");
-    public bool Disabled { get; set; }
+    public bool IsRemoved { get; set; }
     public int? ImageId { get; set; }
     public List<CategoryDto> Categories { get; set; } = null!;
     public List<ImageDto> Images { get; set; } = null!;
@@ -34,7 +34,7 @@ public class ProductDto
             sold = Sold,
             createdAt = CreatedAt,
             updatedAt = UpdatedAt,
-            disabled = Disabled,
+            isRemoved = IsRemoved,
             imageId = ImageId,
             images = Images.Select(i => i.ToRepresentation()).ToList()
         };

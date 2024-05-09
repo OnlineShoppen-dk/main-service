@@ -20,16 +20,12 @@ public class ProductDescription
     
     [DefaultValue(0)]
     [Precision(14, 2)]
-    public decimal? Price { get; set; }
+    public decimal? Price { get; set; } = 0;
     
     [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
     
-    // The thumbnail / main image of the product
-    public int? ImageId { get; set; }
-    
-    // Relations to other entities
-    public List<Image> Images { get; set; } = new();
-    public List<Category> Categories { get; set; } = new();
-    public List<OrderItem> OrderItems { get; set; } = new();
+    [Required]
+    public int ProductId { get; set; }
+    public Product Product { get; set; } = null!;
 }

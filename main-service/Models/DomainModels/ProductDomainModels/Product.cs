@@ -16,7 +16,7 @@ public class Product
     public Guid Guid { get; set; } = Guid.NewGuid();
     
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     
     [DefaultValue(0)]
     [Range(0, int.MaxValue)]
@@ -25,13 +25,14 @@ public class Product
     [DefaultValue(0)]
     [Range(0, int.MaxValue)]
     public int? Sold { get; set; } = 0;
-    
-    // Snapshot of the product and its details
+
+    public bool IsRemoved => ProductRemoved != null;
     
     // Relations to other entities
     public ProductDescription ProductDescription => ProductDescriptions.MaxBy(pd => pd.UpdatedAt) ?? new ProductDescription();
     public List<ProductDescription> ProductDescriptions { get; set; } = new();
     
+    public int? ProductRemovedId { get; set; }
     public ProductRemoved? ProductRemoved { get; set; }
     
     public List<Image> Images { get; set; } = new();
@@ -50,6 +51,7 @@ public class Product
             Stock = Stock,
             Sold = Sold,
             CreatedAt = CreatedAt,
+            IsRemoved = IsRemoved,
             // ProductDescription Infos
             UpdatedAt = ProductDescription.UpdatedAt,
             // Relations

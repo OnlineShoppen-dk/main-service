@@ -14,7 +14,7 @@ public class ProductRepresentation
     public DateTimeOffset updatedAt { get; set; }
     public string updatedAtDate => updatedAt.ToString("yyyy-MM-dd ");
     public string updatedAtTime => updatedAt.ToString("HH:mm:ss");
-    public bool disabled { get; set; }
+    public bool isRemoved { get; set; }
     public int? imageId { get; set; }
     public List<ImageRepresentation>? images { get; set; }
 }

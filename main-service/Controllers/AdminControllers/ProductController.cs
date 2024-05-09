@@ -89,6 +89,7 @@ public class ProductController : BaseAdminController
             .Include(p => p.Images)
             .Include(p => p.Categories)
             .Include(p => p.ProductDescriptions)
+            .Include(product => product.ProductRemoved)
             .AsSplitQuery()
             .AsQueryable();
 
@@ -152,16 +153,25 @@ public class ProductController : BaseAdminController
             .Include(p => p.Images)
             .Include(p => p.Categories)
             .Include(p => p.ProductDescriptions)
+            .Include(product => product.ProductRemoved)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (product == null)
         {
             return NotFound("Product not found");
         }
-
+        var productHistory = product.ProductDescriptions.Select(pd
+            => _mapper.Map<ProductDescriptionDto>(pd)).ToList();
+        // Sort ProductHistory by UpdatedAt, så the latest update is first
+        productHistory.Sort((x, y) => y.UpdatedAt.CompareTo(x.UpdatedAt));
         var productDto = _productService.ConvertToDto(product);
-        
-        return Ok(productDto);
+
+        var response = new
+        {
+            product = productDto,
+            productHistory = productHistory
+        };
+        return Ok(response);
     }
 
     // Create Product
@@ -237,7 +247,8 @@ public class ProductController : BaseAdminController
             RemovedAt = DateTimeOffset.Now,
         };
         product.ProductRemoved = productRemoved;
-        _rabbitMqProducer.PublishRemoveProductQueue(product);
+        
+        // _rabbitMqProducer.PublishRemoveProductQueue(product);
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ

@@ -60,6 +60,18 @@ public class ShopDbContext : DbContext
             .HasMany(p => p.Categories)
             .WithMany(c => c.Products);
         
+        // Product & ProductDescription Relation (One to Many)
+        modelBuilder.Entity<Product>()
+            .HasMany(p => p.ProductDescriptions)
+            .WithOne(pd => pd.Product)
+            .HasForeignKey(pd => pd.ProductId);
+        
+        // Product & ProductRemoved Relation (One to One)
+        modelBuilder.Entity<Product>()
+            .HasOne(p => p.ProductRemoved)
+            .WithOne(pr => pr.Product)
+            .HasForeignKey<ProductRemoved>(pr => pr.ProductId);
+        
         // Order & OrderItem Relation (One to Many)
         modelBuilder.Entity<Order>()
             .HasMany(o => o.OrderItems)
