@@ -17,14 +17,14 @@ public interface IRabbitMQProducer
 public class RabbitMQProducer : IRabbitMQProducer
 {
     // Configurations
-    private readonly string _host;
-    private readonly string _user;
-    private readonly string _pass;
+    private readonly string? _host;
+    private readonly string? _user;
+    private readonly string? _pass;
     
     // Queues
-    private readonly string _syncProductQueue;
-    private readonly string _productQueue;
-    private readonly string _removeProductQueue;
+    private readonly string? _syncProductQueue;
+    private readonly string? _productQueue;
+    private readonly string? _removeProductQueue;
     
     private readonly IConfiguration _configuration;
     
@@ -33,14 +33,14 @@ public class RabbitMQProducer : IRabbitMQProducer
         _configuration = configuration;
 
         // Setup configurations
-        _host = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "";
-        _user = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? "";
-        _pass = Environment.GetEnvironmentVariable("RABBITMQ_PASS") ?? "";
+        _host = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? _configuration["RabbitMQ:Host"];
+        _user = Environment.GetEnvironmentVariable("RABBITMQ_USER") ?? _configuration["RabbitMQ:User"];
+        _pass = Environment.GetEnvironmentVariable("RABBITMQ_PASS") ?? _configuration["RabbitMQ:Pass"];
         
         // Setup queues
-        _productQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_QUEUE") ?? "";
-        _syncProductQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_SYNC_QUEUE") ?? "";
-        _removeProductQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_REMOVE_QUEUE") ?? "";
+        _productQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_QUEUE") ?? _configuration["RabbitMQ:ProductQueue"];
+        _syncProductQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_SYNC_QUEUE") ?? _configuration["RabbitMQ:ProductSyncQueue"];
+        _removeProductQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_REMOVE_QUEUE") ?? _configuration["RabbitMQ:ProductRemoveQueue"];
     }
     
     public void SyncProductQueue<T>(T message)
@@ -71,6 +71,11 @@ public class RabbitMQProducer : IRabbitMQProducer
 
     public void PublishProductQueue<T>(T message)
     {
+        Console.WriteLine("Publishing Product: " + message);
+        Console.WriteLine("Host: " + _host);
+        Console.WriteLine("User: " + _user);
+        Console.WriteLine("Pass: " + _pass);
+        Console.WriteLine("Queue: " + _productQueue);
         var factory = new ConnectionFactory()
         {
             HostName = _host,
