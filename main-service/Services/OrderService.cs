@@ -24,15 +24,15 @@ public class OrderService : IOrderService
             .Include(o => o.OrderItems)
             .ThenInclude(oi => oi.Product)
             .FirstOrDefault(o => o.Id == orderId);
-        
         if(order == null)
         {
             throw new Exception("Order not found");
         }
         order.TransactionId = transactionId;
+        // TODO: Deduct items from stock
         foreach (var orderItem in order.OrderItems)
         {
-            orderItem.Product.ProductSale(orderItem.Quantity);
+            orderItem.Product.ChangeStock(-orderItem.Quantity);
         }
         _dbContext.Orders.Update(order);
         _dbContext.SaveChanges();
@@ -56,7 +56,7 @@ public class OrderService : IOrderService
         {
             foreach (var orderItem in order.OrderItems)
             {
-                orderItem.Product.ProductSaleCancel(orderItem.Quantity);
+                orderItem.Product.ChangeStock(orderItem.Quantity);
             }
         }
         _dbContext.Orders.Update(order);

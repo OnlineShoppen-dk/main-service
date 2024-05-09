@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using main_service.Models.DomainModels;
+using main_service.Models.DomainModels.ProductDomainModels;
 using main_service.Models.DtoModels;
 using main_service.RabbitMQ;
 using Microsoft.EntityFrameworkCore;

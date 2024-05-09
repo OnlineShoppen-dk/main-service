@@ -1,6 +1,7 @@
 ﻿using System.Net.Mime;
 using AutoMapper;
 using main_service.Models.DomainModels;
+using main_service.Models.DomainModels.ProductDomainModels;
 using main_service.Models.DtoModels;
 
 namespace main_service.Models;

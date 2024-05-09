@@ -25,6 +25,8 @@ public class UserDetails
     
     public string PhoneNumber { get; set; } = "";
     
+    public string Address { get; set; } = "";
+    
     // Relations to other entities
     public List<Order> Orders { get; set; } = new();
     

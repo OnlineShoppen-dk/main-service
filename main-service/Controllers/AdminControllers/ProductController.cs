@@ -2,6 +2,7 @@
 using main_service.Models;
 using main_service.Models.ApiModels.ProductApiModels;
 using main_service.Models.DomainModels;
+using main_service.Models.DomainModels.ProductDomainModels;
 using main_service.Models.DtoModels;
 using main_service.RabbitMQ;
 using main_service.Services;
@@ -15,69 +16,9 @@ namespace main_service.Controllers.AdminControllers;
 public class ProductController : BaseAdminController
 {
     private readonly IBlobService _blobService;
+    private readonly IProductService _productService;
 
-    // Sync Product to RabbitMQ
-    [HttpPost]
-    [Route("sync")]
-    public async Task<IActionResult> Sync()
-    {
-        var products = await _dbContext.Products
-            .Include(p => p.Images)
-            .Include(p => p.Categories)
-            .ToListAsync();
-
-        var productDto = _mapper.Map<List<ProductDto>>(products);
-        var serializedProducts = productDto.Select(p => p.ToRepresentation());
-        _rabbitMqProducer.SyncProductQueue(serializedProducts);
-        return Ok("Products synced to RabbitMQ");
-    }
-
-    // Product State Operations
-    // These operation are manual operations that can be performed on a product by an admin if needed
-    
     // Product Category Operations
-    [HttpPost]
-    [Route("{productId:int}/add-category/{categoryId:int}")]
-    public async Task<IActionResult> AddCategory(int productId, int categoryId)
-    {
-        var product = await _dbContext.Products.FindAsync(productId);
-        if (product == null) return NotFound("Product not found");
-
-        var category = await _dbContext.Categories.FindAsync(categoryId);
-        if (category == null) return NotFound("Category not found");
-
-        product.Categories.Add(category);
-        await _dbContext.SaveChangesAsync();
-
-        // Publish update to RabbitMQ
-        var productDto = _mapper.Map<ProductDto>(product);
-        var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
-
-        return Ok("Category added to product");
-    }
-
-    [HttpPost]
-    [Route("{productId:int}/remove-category/{categoryId:int}")]
-    public async Task<IActionResult> RemoveCategory(int productId, int categoryId)
-    {
-        var product = await _dbContext.Products.FindAsync(productId);
-        if (product == null) return NotFound("Product not found");
-
-        var category = await _dbContext.Categories.FindAsync(categoryId);
-        if (category == null) return NotFound("Category not found");
-
-        product.Categories.Remove(category);
-        await _dbContext.SaveChangesAsync();
-
-        // Publish update to RabbitMQ
-        var productDto = _mapper.Map<ProductDto>(product);
-        var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
-
-        return Ok("Category removed from product");
-    }
-
     [HttpPost]
     [Route("{productId:int}/add-image")]
     public async Task<IActionResult> AddImage(int productId, IFormFile file)
@@ -146,12 +87,15 @@ public class ProductController : BaseAdminController
     {
         var products = _dbContext.Products
             .Include(p => p.Images)
+            .Include(p => p.Categories)
+            .Include(p => p.ProductDescriptions)
             .AsSplitQuery()
             .AsQueryable();
+
         // Search
         if (search != null)
         {
-            products = products.Where(x => x.Name.Contains(search));
+            products = products.Where(x => x.ProductDescription.Name.Contains(search));
         }
 
         // Category
@@ -168,23 +112,25 @@ public class ProductController : BaseAdminController
             {
                 "popularity_asc" => products.OrderBy(p => p.Sold),
                 "popularity_desc" => products.OrderByDescending(p => p.Sold),
-                "name_asc" => products.OrderBy(p => p.Name),
-                "name_desc" => products.OrderByDescending(p => p.Name),
-                "price_asc" => products.OrderBy(p => p.Price),
-                "price_desc" => products.OrderByDescending(p => p.Price),
+                "name_asc" => products.OrderBy(p => p.ProductDescription.Name),
+                "name_desc" => products.OrderByDescending(p => p.ProductDescription.Name),
+                "price_asc" => products.OrderBy(p => p.ProductDescription.Price),
+                "price_desc" => products.OrderByDescending(p => p.ProductDescription.Price),
                 "stock_asc" => products.OrderBy(p => p.Stock),
                 "stock_desc" => products.OrderByDescending(p => p.Stock),
                 _ => products.OrderBy(p => p.Id)
             };
         }
 
-        var productTest = await products.ToListAsync();
-        Console.WriteLine(productTest.Count);
         // Pagination
         (products, var pageResult, var pageSizeResult, var totalPages, var totalProducts) =
             _paginationService.ApplyPagination(products, page, pageSize);
+
         // Create response
         var productList = await products.ToListAsync();
+
+        var productDtoList = productList.Select(p => _productService.ConvertToDto(p)).ToList();
+
         var response = new GetProductsResponse
         {
             TotalProducts = totalProducts,
@@ -193,7 +139,7 @@ public class ProductController : BaseAdminController
             TotalPages = totalPages,
             Search = search ?? "",
             Sort = sort ?? "",
-            Products = _mapper.Map<List<ProductDto>>(productList),
+            Products = productDtoList,
         };
         return Ok(response);
     }
@@ -205,13 +151,16 @@ public class ProductController : BaseAdminController
         var product = await _dbContext.Products
             .Include(p => p.Images)
             .Include(p => p.Categories)
+            .Include(p => p.ProductDescriptions)
             .FirstOrDefaultAsync(p => p.Id == id);
+
         if (product == null)
         {
             return NotFound("Product not found");
         }
 
-        var productDto = _mapper.Map<ProductDto>(product);
+        var productDto = _productService.ConvertToDto(product);
+        
         return Ok(productDto);
     }
 
@@ -221,18 +170,24 @@ public class ProductController : BaseAdminController
     {
         var product = new Product
         {
+            Guid = request.Guid,
+            Stock = request.Stock,
+            Sold = request.Sold,
+        };
+        // Create first instance of ProductDescription
+        var productDescription = new ProductDescription
+        {
             Name = request.Name,
             Description = request.Description,
             Price = request.Price,
-            Stock = request.Stock,
-            Sold = 0
         };
-
+        product.ProductDescriptions.Add(productDescription);
+        
         await _dbContext.Products.AddAsync(product);
         await _dbContext.SaveChangesAsync();
-        
+
         // Publish update to RabbitMQ
-        var productDto = _mapper.Map<ProductDto>(product);
+        var productDto = _productService.ConvertToDto(product);
         var deserializeProduct = productDto.ToRepresentation();
         _rabbitMqProducer.PublishProductQueue(deserializeProduct);
 
@@ -248,20 +203,22 @@ public class ProductController : BaseAdminController
         {
             return NotFound("Product not found");
         }
-
-        product.Name = request.Name ?? product.Name;
-        product.Description = request.Description ?? product.Description;
-        product.Price = request.Price ?? product.Price;
+        var productDescription = new ProductDescription
+        {
+            Name = request.Name ?? product.ProductDescription.Name,
+            Description = request.Description ?? product.ProductDescription.Description,
+            Price = request.Price ?? product.ProductDescription.Price,
+            
+        };
         product.Stock = request.Stock ?? product.Stock;
         product.Sold = request.Sold ?? product.Sold;
-        product.Disabled = request.Disabled ?? product.Disabled;
+        product.ProductDescriptions.Add(productDescription);
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
-        var productDto = _mapper.Map<ProductDto>(product);
+        var productDto = _productService.ConvertToDto(product);
         var deserializeProduct = productDto.ToRepresentation();
         _rabbitMqProducer.PublishProductQueue(deserializeProduct);
-
         return Ok(product);
     }
 
@@ -274,13 +231,17 @@ public class ProductController : BaseAdminController
         {
             return NotFound("Product not found");
         }
-
+        var productRemoved = new ProductRemoved
+        {
+            ProductId = product.Id,
+            RemovedAt = DateTimeOffset.Now,
+        };
+        product.ProductRemoved = productRemoved;
         _rabbitMqProducer.PublishRemoveProductQueue(product);
-        _dbContext.Products.Remove(product);
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
-        var productDto = _mapper.Map<ProductDto>(product);
+        var productDto = _productService.ConvertToDto(product);
         var deserializeProduct = productDto.ToRepresentation();
         _rabbitMqProducer.PublishRemoveProductQueue(deserializeProduct);
 
@@ -289,9 +250,54 @@ public class ProductController : BaseAdminController
 
 
     public ProductController(IMapper mapper, ShopDbContext dbContext, IPaginationService paginationService,
-        IRabbitMQProducer rabbitMqProducer, IBlobService blobService) : base(mapper, dbContext, paginationService,
+        IRabbitMQProducer rabbitMqProducer, IBlobService blobService, IProductService productService) : base(mapper, dbContext, paginationService,
         rabbitMqProducer)
     {
         _blobService = blobService;
+        _productService = productService;
     }
 }
+
+/* OLD FUNCTIONS
+[HttpPost]
+    [Route("{productId:int}/add-category/{categoryId:int}")]
+    public async Task<IActionResult> AddCategory(int productId, int categoryId)
+    {
+        var product = await _dbContext.Products.FindAsync(productId);
+        if (product == null) return NotFound("Product not found");
+
+        var category = await _dbContext.Categories.FindAsync(categoryId);
+        if (category == null) return NotFound("Category not found");
+
+        product.Categories.Add(category);
+        await _dbContext.SaveChangesAsync();
+
+        // Publish update to RabbitMQ
+        var productDto = _mapper.Map<ProductDto>(product);
+        var deserializeProduct = productDto.ToRepresentation();
+        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
+
+        return Ok("Category added to product");
+    }
+
+    [HttpPost]
+    [Route("{productId:int}/remove-category/{categoryId:int}")]
+    public async Task<IActionResult> RemoveCategory(int productId, int categoryId)
+    {
+        var product = await _dbContext.Products.FindAsync(productId);
+        if (product == null) return NotFound("Product not found");
+
+        var category = await _dbContext.Categories.FindAsync(categoryId);
+        if (category == null) return NotFound("Category not found");
+
+        product.Categories.Remove(category);
+        await _dbContext.SaveChangesAsync();
+
+        // Publish update to RabbitMQ
+        var productDto = _mapper.Map<ProductDto>(product);
+        var deserializeProduct = productDto.ToRepresentation();
+        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
+        return Ok("Category removed from product");
+    }
+
+ */

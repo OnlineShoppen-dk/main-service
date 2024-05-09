@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using main_service.Models.DomainModels.ProductDomainModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace main_service.Models.DomainModels;
