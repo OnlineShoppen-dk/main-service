@@ -71,11 +71,6 @@ public class RabbitMQProducer : IRabbitMQProducer
 
     public void PublishProductQueue<T>(T message)
     {
-        Console.WriteLine("Publishing Product: " + message);
-        Console.WriteLine("Host: " + _host);
-        Console.WriteLine("User: " + _user);
-        Console.WriteLine("Pass: " + _pass);
-        Console.WriteLine("Queue: " + _productQueue);
         var factory = new ConnectionFactory()
         {
             HostName = _host,

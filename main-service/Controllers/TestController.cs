@@ -68,7 +68,6 @@ public class TestController : BaseController
         }
 
         var result = await _dbContext.Products.ToListAsync();
-        Console.WriteLine("Products fetched");
         foreach (var product in result)
         {
             var productDto = _productService.ConvertToDto(product);
