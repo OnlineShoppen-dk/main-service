@@ -201,7 +201,7 @@ public class ProductController : BaseAdminController
         var deserializeProduct = productDto.ToRepresentation();
         _rabbitMqProducer.PublishProductQueue(deserializeProduct);
 
-        return Ok(product);
+        return Ok(productDto);
     }
 
     // Update Product
@@ -229,7 +229,7 @@ public class ProductController : BaseAdminController
         var productDto = _productService.ConvertToDto(product);
         var deserializeProduct = productDto.ToRepresentation();
         _rabbitMqProducer.PublishProductQueue(deserializeProduct);
-        return Ok(product);
+        return Ok(productDto);
     }
 
     // Delete Product
@@ -255,7 +255,6 @@ public class ProductController : BaseAdminController
         var productDto = _productService.ConvertToDto(product);
         var deserializeProduct = productDto.ToRepresentation();
         _rabbitMqProducer.PublishRemoveProductQueue(deserializeProduct);
-
         return Ok("Product deleted");
     }
 
