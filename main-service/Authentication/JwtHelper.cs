@@ -22,14 +22,20 @@ public class JwtHelper
     
     public Guid DecodeJwtToken(string token)
     {
+        var issuer = Environment.GetEnvironmentVariable("ISSUER") ?? _configuration["Jwt:Issuer"];
+        var audience = Environment.GetEnvironmentVariable("AUDIENCE") ?? _configuration["Jwt:Audience"];
+        var key = Environment.GetEnvironmentVariable("KEY") ?? _configuration["Jwt:Key"];
+        if (issuer is null || audience is null || key is null)
+        {
+            throw new Exception("Missing configuration in JwtHelper");
+        }
         var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]!);
-        
+        var keyBytes = Encoding.ASCII.GetBytes(key);
         // TODO: Validate the token's signature
         var tokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
+            IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidIssuer = _configuration["Jwt:Issuer"],

@@ -34,6 +34,7 @@ public class Startup
         
         services.AddControllers();
 
+        
         // Adds cors policy which allows any origin, method and header
         services.AddCors(options =>
         {
