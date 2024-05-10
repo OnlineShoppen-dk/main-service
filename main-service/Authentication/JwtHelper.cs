@@ -43,7 +43,7 @@ public class JwtHelper
             ValidateLifetime = true
         };
         var decodedToken = tokenHandler.ReadJwtToken(token);
-        var guid = decodedToken.Claims.First(claim => claim.Type == "guid").Value;
+        var guid = decodedToken.Claims.First(claim => claim.Type == "data").Value;
         var parsedGuid = Guid.Parse(guid);
         return parsedGuid;
     }

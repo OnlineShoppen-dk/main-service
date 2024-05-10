@@ -1,6 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using AutoMapper;
+﻿using AutoMapper;
 using main_service.Authentication;
 using main_service.Models;
 using main_service.Models.DomainModels;
@@ -21,7 +19,7 @@ public class BaseUserController : BaseController
     {
         get
         {
-            var token = Request.Cookies["jwtToken"];
+            var token = Request.Cookies["token"];
             var decodedToken = _jwtHelper.DecodeJwtToken(token);
             // Validate that a user with the given guid exists
             var user = _dbContext.UserDetails.FirstOrDefault(u => u.Guid == decodedToken);
