@@ -1,4 +1,5 @@
-﻿using main_service.Authentication.Policies;
+﻿using main_service.Authentication;
+using main_service.Authentication.Policies;
 using main_service.Models;
 using main_service.RabbitMQ;
 using main_service.Services;
@@ -36,6 +37,8 @@ public class ServiceConfig
         
         // RabbitMQ
         services.AddScoped<IRabbitMQProducer, RabbitMQProducer>();
+        // JwtHelper
+        services.AddSingleton<JwtHelper>();
     }
 
     /// <summary>

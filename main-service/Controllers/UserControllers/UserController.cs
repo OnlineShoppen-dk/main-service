@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using main_service.Authentication;
 using main_service.Models;
 using main_service.Models.ApiModels.UserDetailApiModels;
 using main_service.Models.DomainModels;
@@ -6,6 +7,7 @@ using main_service.Models.DtoModels;
 using main_service.RabbitMQ;
 using main_service.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -96,8 +98,9 @@ public class UserController : BaseUserController
         var response = _mapper.Map<List<OrderDto>>(user.Orders);
         return Ok(response);
     }
-    
-    public UserController(IMapper mapper, ShopDbContext dbContext, IPaginationService paginationService, IRabbitMQProducer rabbitMqProducer) : base(mapper, dbContext, paginationService, rabbitMqProducer)
+
+
+    public UserController(IMapper mapper, ShopDbContext dbContext, IPaginationService paginationService, IRabbitMQProducer rabbitMqProducer, JwtHelper jwtHelper) : base(mapper, dbContext, paginationService, rabbitMqProducer, jwtHelper)
     {
     }
 }

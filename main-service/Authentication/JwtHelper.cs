@@ -19,44 +19,36 @@ public class JwtHelper
     {
         _configuration = configuration;
     }
-
-    public static UserPrincipal GetUser(ClaimsPrincipal claims)
+    
+    public Guid DecodeJwtToken(string token)
     {
-        var user = new UserPrincipal
-        {
-            Id = Convert.ToInt32(claims.FindFirst(ClaimTypes.NameIdentifier)!.Value),
-            Name = claims.FindFirst(ClaimTypes.GivenName)!.Value,
-            Role = claims.FindFirst(ClaimTypes.Role)!.Value,
-        };
-        return user;
-    }
-
-    public string GenerateToken(UserDetails userDetails)
-    {
-        var authClaims = new List<Claim>
-        {
-            new(ClaimTypes.NameIdentifier, userDetails.Id.ToString()!),
-            // new(ClaimTypes.GivenName, user.Name!),
-            // new(ClaimTypes.Role, user.Role),
-        };
-        var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Expires = DateTime.UtcNow.AddDays(30),
-            Issuer = "main-service",
-            Audience = "main-service",
-            SigningCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256),
-            Subject = new ClaimsIdentity(authClaims)
-        };
         var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-        return tokenHandler.WriteToken(token);
+        var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"]!);
+        
+        // TODO: Validate the token's signature
+        var tokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidIssuer = _configuration["Jwt:Issuer"],
+            ValidAudience = _configuration["Jwt:Audience"],
+            ValidateLifetime = true
+        };
+        var decodedToken = tokenHandler.ReadJwtToken(token);
+        var guid = decodedToken.Claims.First(claim => claim.Type == "guid").Value;
+        var parsedGuid = Guid.Parse(guid);
+        return parsedGuid;
     }
 }
 
 public class UserPrincipal
 {
     public int Id { get; set; }
-    public string Name { get; set; } = null!;
-    public string Role { get; set; } = null!;
+    public string FirstName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
+    public string Email { get; set; } = null!;
+    public string PhoneNumber { get; set; } = null!;
+    public string Role { get; set; }
 }
