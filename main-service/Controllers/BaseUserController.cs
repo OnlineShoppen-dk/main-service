@@ -23,6 +23,10 @@ public class BaseUserController : BaseController
             var decodedToken = _jwtHelper.DecodeJwtToken(token);
             // Validate that a user with the given guid exists
             var user = _dbContext.UserDetails.FirstOrDefault(u => u.Guid == decodedToken);
+            if (user == null)
+            {
+                return null;
+            }
             var userDetails = new UserPrincipal
             {
                 Id = user.Id,

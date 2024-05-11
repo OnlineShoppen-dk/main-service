@@ -3,6 +3,7 @@ using main_service.Models;
 using main_service.Models.ApiModels.CategoryApiModels;
 using main_service.Models.DomainModels;
 using main_service.Models.DomainModels.ProductDomainModels;
+using main_service.Models.DtoModels;
 using main_service.RabbitMQ;
 using main_service.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -14,8 +15,6 @@ namespace main_service.Controllers;
 [Route("[controller]")]
 public class TestController : BaseController
 {
-    
-    private readonly IProductService _productService;
     
     /// <summary>
     /// Adds 250 products and 25 categories to the database
@@ -70,7 +69,7 @@ public class TestController : BaseController
         var result = await _dbContext.Products.ToListAsync();
         foreach (var product in result)
         {
-            var productDto = _productService.ConvertToDto(product);
+            var productDto = _mapper.Map<ProductDto>(product);
             var deserializeProduct = productDto.ToRepresentation();
             _rabbitMqProducer.PublishProductQueue(deserializeProduct);
         }
@@ -98,8 +97,7 @@ public class TestController : BaseController
         await _dbContext.SaveChangesAsync();
     }
     
-    public TestController(IMapper mapper, ShopDbContext dbContext, IPaginationService paginationService, IRabbitMQProducer rabbitMqProducer, IProductService productService) : base(mapper, dbContext, paginationService, rabbitMqProducer)
+    public TestController(IMapper mapper, ShopDbContext dbContext, IPaginationService paginationService, IRabbitMQProducer rabbitMqProducer) : base(mapper, dbContext, paginationService, rabbitMqProducer)
     {
-        _productService = productService;
     }
 }

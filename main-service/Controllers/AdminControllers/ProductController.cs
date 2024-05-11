@@ -16,7 +16,6 @@ namespace main_service.Controllers.AdminControllers;
 public class ProductController : BaseAdminController
 {
     private readonly IBlobService _blobService;
-    private readonly IProductService _productService;
 
     // Product Category Operations
     [HttpPost]
@@ -81,30 +80,27 @@ public class ProductController : BaseAdminController
         [FromQuery] string? search,
         [FromQuery] int? page,
         [FromQuery] int? pageSize,
-        [FromQuery] string? sort,
-        [FromQuery] string? category
+        [FromQuery] string? sort
     )
     {
         var products = _dbContext.Products
             .Include(p => p.Images)
             .Include(p => p.Categories)
             .Include(p => p.ProductDescriptions)
-            .Include(product => product.ProductRemoved)
+            .Include(p => p.ProductRemoved)
             .AsSplitQuery()
+            .OrderBy(p => p.Id)
             .AsQueryable();
-
+        
+        
         // Search
         if (search != null)
         {
-            products = products.Where(x => x.ProductDescription.Name.Contains(search));
+            products = products.Where(p => p.ProductDescriptions.Any(pd => pd.Name.Contains(search)));
         }
-
-        // Category
-        if (category != null)
-        {
-            products = products.Where(x => x.Categories.Any(c => c.Name == category));
-        }
-
+        
+        if(!products.Any()) return NotFound("No products found");
+        
 
         // Sorting
         if (sort != null)
@@ -127,11 +123,12 @@ public class ProductController : BaseAdminController
         (products, var pageResult, var pageSizeResult, var totalPages, var totalProducts) =
             _paginationService.ApplyPagination(products, page, pageSize);
 
-        // Create response
+        // Get the products
         var productList = await products.ToListAsync();
 
-        var productDtoList = productList.Select(p => _productService.ConvertToDto(p)).ToList();
-
+        // Map to DTO
+        var productDtoList = _mapper.Map<List<ProductDto>>(productList);
+        
         var response = new GetProductsResponse
         {
             TotalProducts = totalProducts,
@@ -150,21 +147,20 @@ public class ProductController : BaseAdminController
     public async Task<IActionResult> Get(int id)
     {
         var product = await _dbContext.Products
-            .Include(p => p.Images)
-            .Include(p => p.Categories)
             .Include(p => p.ProductDescriptions)
-            .Include(product => product.ProductRemoved)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (product == null)
         {
             return NotFound("Product not found");
         }
+        
         var productHistory = product.ProductDescriptions.Select(pd
             => _mapper.Map<ProductDescriptionDto>(pd)).ToList();
+        
         // Sort ProductHistory by UpdatedAt, så the latest update is first
         productHistory.Sort((x, y) => y.UpdatedAt.CompareTo(x.UpdatedAt));
-        var productDto = _productService.ConvertToDto(product);
+        var productDto = _mapper.Map<ProductDto>(product);
 
         var response = new
         {
@@ -197,10 +193,8 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
-        var productDto = _productService.ConvertToDto(product);
-        var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
-
+        PublishProductToBroker(product);
+        var productDto = _mapper.Map<ProductDto>(product);
         return Ok(productDto);
     }
 
@@ -226,9 +220,10 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
-        var productDto = _productService.ConvertToDto(product);
-        var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
+        PublishProductToBroker(product);
+        
+        // Response
+        var productDto = _mapper.Map<ProductDto>(product);
         return Ok(productDto);
     }
 
@@ -252,19 +247,24 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
-        var productDto = _productService.ConvertToDto(product);
-        var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishRemoveProductQueue(deserializeProduct);
+        PublishProductToBroker(product);
+        
         return Ok("Product deleted");
     }
 
+    
+    private void PublishProductToBroker(Product product)
+    {
+        var productDto = _mapper.Map<ProductDto>(product);
+        var deserializeProduct = productDto.ToRepresentation();
+        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
+    }
 
     public ProductController(IMapper mapper, ShopDbContext dbContext, IPaginationService paginationService,
-        IRabbitMQProducer rabbitMqProducer, IBlobService blobService, IProductService productService) : base(mapper, dbContext, paginationService,
+        IRabbitMQProducer rabbitMqProducer, IBlobService blobService) : base(mapper, dbContext, paginationService,
         rabbitMqProducer)
     {
         _blobService = blobService;
-        _productService = productService;
     }
 }
 

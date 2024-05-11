@@ -5,6 +5,7 @@ using main_service.Models.DtoModels;
 using main_service.RabbitMQ;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace main_service.Models;
 
@@ -137,4 +138,5 @@ public class ShopDbContext : DbContext
          */
         
     }
+
 }

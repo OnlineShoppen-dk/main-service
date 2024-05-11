@@ -38,28 +38,6 @@ public class Product
     public List<Image> Images { get; set; } = new();
     public List<Category> Categories { get; set; } = new();
     public List<OrderItem> OrderItems { get; set; } = new();
-
-    public ProductDto ConvertToDto(List<CategoryDto> categories, List<ImageDto> images)
-    {
-        var productDto = new ProductDto
-        {
-            Id = Id,
-            Guid = Guid,
-            Name = ProductDescription.Name,
-            Description = ProductDescription.Description,
-            Price = ProductDescription.Price,
-            Stock = Stock,
-            Sold = Sold,
-            CreatedAt = CreatedAt,
-            IsRemoved = IsRemoved,
-            // ProductDescription Infos
-            UpdatedAt = ProductDescription.UpdatedAt,
-            // Relations
-            Categories = categories,
-            Images = images
-        };
-        return productDto;
-    }
     
     public void ChangeStock(int amount)
     {

@@ -16,7 +16,26 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         // DTO
-        CreateMap<Product, ProductDto>().ReverseMap();
+        // Product & ProductDescription -> ProductDto
+        CreateMap<Product, ProductDto>()
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.Guid, opt => opt.MapFrom(src => src.Guid))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ProductDescription.Name))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.ProductDescription.Description))
+            .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.ProductDescription.Price))
+            .ForMember(dest => dest.Stock, opt => opt.MapFrom(src => src.Stock))
+            .ForMember(dest => dest.Sold, opt => opt.MapFrom(src => src.Sold))
+            .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
+            .ForMember(dest => dest.IsRemoved, opt => opt.MapFrom(src => src.IsRemoved))
+            .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.ProductDescription.UpdatedAt))
+            .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories.Select(c => new CategoryDto
+            {
+                /* mapping for CategoryDto */
+            }).ToList()))
+            .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images.Select(i => new ImageDto
+            {
+                /* mapping for ImageDto */
+            }).ToList()));
         CreateMap<ProductDescription, ProductDescriptionDto>().ReverseMap();
         CreateMap<Category, CategoryDto>().ReverseMap();
         CreateMap<Order, OrderDto>().ReverseMap();
