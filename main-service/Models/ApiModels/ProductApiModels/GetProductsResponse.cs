@@ -11,5 +11,7 @@ public class GetProductsResponse
     public int TotalPages { get; set; }
     public string Search { get; set; } = null!;
     public string Sort { get; set; } = null!;
+    public bool IncludeRemoved { get; set; }
     public List<ProductDto> Products { get; set; } = null!;
+    
 }

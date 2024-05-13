@@ -80,7 +80,8 @@ public class ProductController : BaseAdminController
         [FromQuery] string? search,
         [FromQuery] int? page,
         [FromQuery] int? pageSize,
-        [FromQuery] string? sort
+        [FromQuery] string? sort,
+        [FromQuery] bool? includeRemoved
     )
     {
         var products = _dbContext.Products
@@ -92,6 +93,11 @@ public class ProductController : BaseAdminController
             .OrderBy(p => p.Id)
             .AsQueryable();
         
+        // Include Removed
+        if (includeRemoved != true)
+        {
+            products = products.Where(p => p.ProductRemoved == null);
+        }
         
         // Search
         if (search != null)
@@ -103,21 +109,21 @@ public class ProductController : BaseAdminController
         
 
         // Sorting
+        // Products will always have a product description, so we can safely use FirstOrDefault here
         if (sort != null)
         {
             products = sort switch
             {
                 "popularity_asc" => products.OrderBy(p => p.Sold),
                 "popularity_desc" => products.OrderByDescending(p => p.Sold),
-                "name_asc" => products.OrderBy(p => p.ProductDescription.Name),
-                "name_desc" => products.OrderByDescending(p => p.ProductDescription.Name),
-                "price_asc" => products.OrderBy(p => p.ProductDescription.Price),
-                "price_desc" => products.OrderByDescending(p => p.ProductDescription.Price),
+                "name_asc" => products.OrderBy(p => p.ProductDescriptions.OrderByDescending(pd => pd.UpdatedAt).FirstOrDefault()!.Name),
+                "name_desc" => products.OrderByDescending(p => p.ProductDescriptions.OrderByDescending(pd => pd.UpdatedAt).FirstOrDefault()!.Name),
                 "stock_asc" => products.OrderBy(p => p.Stock),
                 "stock_desc" => products.OrderByDescending(p => p.Stock),
                 _ => products.OrderBy(p => p.Id)
             };
         }
+        
 
         // Pagination
         (products, var pageResult, var pageSizeResult, var totalPages, var totalProducts) =
@@ -137,13 +143,14 @@ public class ProductController : BaseAdminController
             TotalPages = totalPages,
             Search = search ?? "",
             Sort = sort ?? "",
+            IncludeRemoved = includeRemoved ?? false,
             Products = productDtoList,
         };
         return Ok(response);
     }
 
     // Get Product by ID
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> Get(int id)
     {
         var product = await _dbContext.Products
@@ -199,7 +206,7 @@ public class ProductController : BaseAdminController
     }
 
     // Update Product
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> Put(int id, [FromBody] PutProductRequest request)
     {
         var product = await _dbContext.Products.FindAsync(id);
@@ -226,7 +233,22 @@ public class ProductController : BaseAdminController
         var productDto = _mapper.Map<ProductDto>(product);
         return Ok(productDto);
     }
-
+    
+    // Active Product / Restore Product
+    [HttpPut("{id:int}/restore")]
+    public async Task<IActionResult> Restore(int id)
+    {
+        var product = await _dbContext.Products.Include(p => p.ProductRemoved).FirstOrDefaultAsync(p => p.Id == id);
+        if (product == null)
+        {
+            return NotFound("Product not found");
+        }
+        product.ProductRemoved = null;
+        await _dbContext.SaveChangesAsync();
+        // Publish update to RabbitMQ
+        PublishProductToBroker(product);
+        return Ok("Product restored");
+    }
     // Delete Product
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
