@@ -118,6 +118,8 @@ public class ProductController : BaseAdminController
                 "popularity_desc" => products.OrderByDescending(p => p.Sold),
                 "name_asc" => products.OrderBy(p => p.ProductDescriptions.OrderByDescending(pd => pd.UpdatedAt).FirstOrDefault()!.Name),
                 "name_desc" => products.OrderByDescending(p => p.ProductDescriptions.OrderByDescending(pd => pd.UpdatedAt).FirstOrDefault()!.Name),
+                "price_asc" => products.OrderBy(p => p.ProductDescriptions.OrderByDescending(pd => pd.UpdatedAt).FirstOrDefault()!.Price),
+                "price_desc" => products.OrderByDescending(p => p.ProductDescriptions.OrderByDescending(pd => pd.UpdatedAt).FirstOrDefault()!.Price),
                 "stock_asc" => products.OrderBy(p => p.Stock),
                 "stock_desc" => products.OrderByDescending(p => p.Stock),
                 _ => products.OrderBy(p => p.Id)
