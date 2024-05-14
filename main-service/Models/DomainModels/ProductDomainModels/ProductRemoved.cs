@@ -15,6 +15,4 @@ public class ProductRemoved
     [Required]
     public int ProductId { get; set; }
     public Product Product { get; set; } = null!;
-    
-    
 }

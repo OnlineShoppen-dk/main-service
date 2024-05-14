@@ -5,8 +5,7 @@ namespace main_service.Services;
 
 /// <summary>
 /// This will be the service that will handle all, image related operations
-/// At the time of writing, this service only works locally assuming you are running Azurite
-/// 
+/// At the time of writing, this service only works locally assuming you are running Azurite.
 /// </summary>
 public interface IBlobService
 {
@@ -26,6 +25,9 @@ public class BlobService : IBlobService
         _configuration = configuration;
     }
 
+    /// <summary>Retrieves an image file as a stream from Azure Blob Storage.</summary>
+    /// <param name="filename">The name of the image file to retrieve.</param>
+    /// <returns> A Task containing a stream of bytes of an image file or a default image stream.</returns>
     public async Task<Stream> GetImage(string filename)
     {
         if (filename == null)
@@ -48,6 +50,13 @@ public class BlobService : IBlobService
         }
     }
 
+    /// <summary>Uploads an image to the specified file name.</summary>
+    /// <param name="fileName">The name of the file to upload the image to.</param>
+    /// <param name="file">The image file to upload.</param>
+    /// <returns>A tuple containing an integer status code and a string message:
+    /// - Status code 1 indicates successful upload with the file name.
+    /// - Status code 0 indicates failure with an appropriate error message.
+    /// </returns>
     public async Task<(int, string)> UploadImage(string fileName, IFormFile file)
     {
         using var memoryStream = new MemoryStream();
@@ -75,6 +84,15 @@ public class BlobService : IBlobService
         return (0, "Image not uploaded");
     }
 
+    
+    /// <summary>
+    /// Deletes an image from Azure Blob Storage.
+    /// </summary>
+    /// <param name="url">The name of the file that needs to be deleted.</param>
+    /// <returns> A tuple containing an integer status code and a string message:
+    /// - Status code 1 indicates successful deletion.
+    /// - Status code 0 indicates failure with an appropriate error message.
+    /// </returns>
     public async Task<(int, string)> DeleteImage(string url)
     {
         var containerClient = GetBlobContainerClient();
@@ -87,8 +105,12 @@ public class BlobService : IBlobService
 
         return (0, "Image not found");
     }
-
-
+    
+    /// <summary>
+    /// This will check if an image exists in the blob storage
+    /// </summary>
+    /// <param name="filename">The name of the file to check for existence.</param>
+    /// <returns>A Task containing a boolean value indicating whether the image exists.</returns>
     public async Task<bool> ImageExists(string filename)
     {
         var containerClient = GetBlobContainerClient();
@@ -99,8 +121,9 @@ public class BlobService : IBlobService
     /// <summary>
     /// This will get the blob container client
     /// This is done using Azurite or Azure
-    /// If the container does not exist, it will be created
+    /// If the container does not exist, it will be created 
     /// </summary>
+    /// <returns> A BlobContainerClient object that represents the container in Azure Blob Storage.</returns>
     private BlobContainerClient GetBlobContainerClient()
     {
         var connectionString = Environment.GetEnvironmentVariable("AZURITE_CONNECTION_STRING") ?? _configuration["Azurite:ConnectionString"]; 

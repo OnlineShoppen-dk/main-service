@@ -52,6 +52,9 @@ public class Startup
     {
         // Migrate database to latest version if necessary
         dbContext.Database.Migrate();
+        // TODO: Remove this line if production seed data is not necessary
+        // Seed data if necessary (only if product & category tables are empty
+        dbContext.SeedData();
         
         app.UseCors("AllowAll");
         if (env.IsDevelopment())
