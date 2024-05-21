@@ -31,11 +31,20 @@ public class MappingProfile : Profile
             .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories.Select(c => new CategoryDto
             {
                 /* mapping for CategoryDto */
+                Id = c.Id,
+                Name = c.Name,
+                Description = c.Description,
+                TotalProducts = c.Products.Count
             }).ToList()))
             .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images.Select(i => new ImageDto
             {
                 /* mapping for ImageDto */
+                Id = i.Id,
+                Name = i.Name,
+                FileName = i.FileName,
+                Alt = i.Alt,
             }).ToList()));
+        
         CreateMap<ProductDescription, ProductDescriptionDto>().ReverseMap();
         CreateMap<Category, CategoryDto>().ReverseMap();
         CreateMap<Order, OrderDto>().ReverseMap();
