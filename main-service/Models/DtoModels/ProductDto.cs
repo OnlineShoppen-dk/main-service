@@ -36,7 +36,8 @@ public class ProductDto
             updatedAt = UpdatedAt,
             isRemoved = IsRemoved,
             imageId = ImageId,
-            images = Images.Select(i => i.ToRepresentation()).ToList()
+            images = Images.Select(i => i.ToRepresentation()).ToList(),
+            categories = Categories.Select(c => c.ToRepresentation()).ToList()
         };
     }
 }

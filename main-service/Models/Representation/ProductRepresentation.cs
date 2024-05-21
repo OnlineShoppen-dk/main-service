@@ -17,4 +17,5 @@ public class ProductRepresentation
     public bool isRemoved { get; set; }
     public int? imageId { get; set; }
     public List<ImageRepresentation>? images { get; set; }
+    public List<CategoryRepresentation>? categories { get; set; }
 }
