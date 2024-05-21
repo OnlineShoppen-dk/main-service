@@ -81,6 +81,7 @@ public class ProductController : BaseAdminController
         [FromQuery] int? page,
         [FromQuery] int? pageSize,
         [FromQuery] string? sort,
+        [FromQuery] int? categoryId,
         [FromQuery] bool? includeRemoved
     )
     {
@@ -93,6 +94,12 @@ public class ProductController : BaseAdminController
             .OrderBy(p => p.Id)
             .AsQueryable();
 
+        // Category Filter
+        if (categoryId != null)
+        {
+            products = products.Where(p => p.Categories.Any(c => c.Id == categoryId));
+        }
+        
         // Include Removed
         if (includeRemoved != true)
         {

@@ -36,8 +36,26 @@ public class CategoryController : BaseAdminController
         return Ok(response);
     }
     
-    // BASIC CRUD OPERATIONS
+    [HttpPost]
+    [Route("{id:int}/add-product/{productId:int}")]
+    public async Task<IActionResult> AddProductToCategory(int id, int productId)
+    {
+        var category = await _dbContext.Categories.FindAsync(id);
+        if (category == null)
+        {
+            return NotFound("Category not found");
+        }
+        var product = await _dbContext.Products.FindAsync(productId);
+        if (product == null)
+        {
+            return NotFound("Product not found");
+        }
+        category.Products.Add(product);
+        await _dbContext.SaveChangesAsync();
+        return Ok("Product added to category");
+    }
     
+    // BASIC CRUD OPERATIONS
     // Get All Categories
     [HttpGet]
     public async Task<IActionResult> Get(

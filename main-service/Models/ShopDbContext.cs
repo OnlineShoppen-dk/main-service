@@ -132,14 +132,6 @@ public class ShopDbContext : DbContext
     /// <summary>
     /// Create a method to seed data into the database
     /// </summary>
-    /// INSERT INTO `main_service`.`products` (`id`, `guid`, `stock`, `sold`) VALUES ('1', '1', '100', '0');
-    /// INSERT INTO `main_service`.`products` (`id`, `guid`, `stock`, `sold`) VALUES ('1', '1', '100', '0');
-    /// INSERT INTO `main_service`.`products` (`id`, `guid`, `stock`, `sold`) VALUES ('1', '1', '100', '0');
-    /// INSERT INTO `main_service`.`products` (`id`, `guid`, `stock`, `sold`) VALUES ('1', '1', '100', '0');
-    /// INSERT INTO `main_service`.`products` (`id`, `guid`, `stock`, `sold`) VALUES ('1', '1', '100', '0');
-    /// INSERT INTO `main_service`.`products` (`id`, `guid`, `stock`, `sold`) VALUES ('1', '1', '100', '0');
-    /// INSERT INTO `main_service`.`products` (`id`, `guid`, `stock`, `sold`) VALUES ('1', '1', '100', '0');
-    /// INSERT INTO `main_service`.`products` (`id`, `guid`, `stock`, `sold`) VALUES ('1', '1', '100', '0');
     public void SeedData()
     {
         if (!Products.Any())
