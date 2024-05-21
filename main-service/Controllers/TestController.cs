@@ -47,12 +47,7 @@ public class TestController : BaseController
         {
             return BadRequest("Setup failed 2");
         }
-
-        var randomProduct = await _dbContext.Products
-            .Include(x => x.ProductDescriptions)
-            .Include(x => x.Images)
-            .Include(x => x.Categories)
-            .FirstOrDefaultAsync();
+        
         // Publish to rabbitmq
         var productsPublished = await PublishTestProductsToRabbitMQ();
         if (!productsPublished)
