@@ -36,8 +36,8 @@ public class OrderItemDto
     {
         return new OrderItemRepresentation
         {
-            id = Id,
-            quantity = Quantity
+            Id = Id,
+            Quantity = Quantity
         };
     }
 }

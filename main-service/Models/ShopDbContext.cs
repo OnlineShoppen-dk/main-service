@@ -153,7 +153,8 @@ public class ShopDbContext : DbContext
                         }
                     }
                 });
-            for (var i = 0; i < 100; i++)
+            const int productCount = 25;
+            for (var i = 0; i < productCount; i++)
             {
                 var product = new Product
                 {
@@ -178,7 +179,8 @@ public class ShopDbContext : DbContext
         if (!Categories.Any())
         {
             var categoryList = new List<Category> { };
-            for (var i = 0; i < 10; i++)
+            const int categoryCount = 10;
+            for (var i = 0; i < categoryCount; i++)
             {
                 var category = new Category
                 {

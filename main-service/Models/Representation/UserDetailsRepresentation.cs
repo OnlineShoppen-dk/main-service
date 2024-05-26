@@ -2,9 +2,9 @@
 
 public class UserDetailsRepresentation
 {
-    public int id { get; set; }
-    public string firstName { get; set; } = null!;
-    public string lastName { get; set; } = null!;
-    public string email { get; set; } = null!;
-    public string phoneNumber { get; set; } = null!;
+    public int Id { get; set; }
+    public string FirstName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
+    public string Email { get; set; } = null!;
+    public string PhoneNumber { get; set; } = null!;
 }

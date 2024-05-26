@@ -13,10 +13,10 @@ public class CategoryDto
     {
         return new CategoryRepresentation
         {
-            id = Id,
-            name = Name,
-            description = Description,
-            totalProducts = TotalProducts
+            Id = Id,
+            Name = Name,
+            Description = Description,
+            TotalProducts = TotalProducts
         };
     }
 }

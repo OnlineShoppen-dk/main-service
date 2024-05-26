@@ -2,20 +2,15 @@
 
 public class ProductRepresentation
 {
-    public int id { get; set; }
-    public string name { get; set; } = null!;
-    public string description { get; set; } = null!;
-    public decimal? price { get; set; }
-    public int? stock { get; set; }
-    public int? sold { get; set; }
-    public DateTimeOffset createdAt { get; set; } 
-    public string createdAtDate => createdAt.ToString("yyyy-MM-dd ");
-    public string createdAtTime => createdAt.ToString("HH:mm:ss");
-    public DateTimeOffset updatedAt { get; set; }
-    public string updatedAtDate => updatedAt.ToString("yyyy-MM-dd ");
-    public string updatedAtTime => updatedAt.ToString("HH:mm:ss");
-    public bool isRemoved { get; set; }
-    public int? imageId { get; set; }
-    public List<ImageRepresentation>? images { get; set; }
-    public List<CategoryRepresentation>? categories { get; set; }
+    public int Id { get; set; }
+    public string Name { get; set; } = null!;
+    public string Description { get; set; } = null!;
+    public decimal? Price { get; set; }
+    public int? Stock { get; set; }
+    public int? Sold { get; set; }
+    public DateTimeOffset CreatedAt { get; set; } 
+    public DateTimeOffset UpdatedAt { get; set; }
+    public bool Disabled { get; set; }
+    public List<ImageRepresentation>? Images { get; set; }
+    public List<CategoryRepresentation>? Categories { get; set; }
 }

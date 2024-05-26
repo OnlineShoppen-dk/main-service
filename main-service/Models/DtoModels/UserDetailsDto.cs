@@ -14,11 +14,11 @@ public class UserDetailsDto
     {
         return new UserDetailsRepresentation
         {
-            id = Id,
-            firstName = FirstName,
-            lastName = LastName,
-            email = Email,
-            phoneNumber = PhoneNumber
+            Id = Id,
+            FirstName = FirstName,
+            LastName = LastName,
+            Email = Email,
+            PhoneNumber = PhoneNumber
         };
     }
 }

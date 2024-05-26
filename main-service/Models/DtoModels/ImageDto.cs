@@ -13,10 +13,10 @@ public class ImageDto
     {
         return new ImageRepresentation
         {
-            id = Id,
-            name = Name,
-            fileName = FileName,
-            alt = Alt
+            Id = Id,
+            Name = Name,
+            FileName = FileName,
+            Alt = Alt
         };
     }
 }

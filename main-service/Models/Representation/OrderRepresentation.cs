@@ -12,6 +12,6 @@ public class OrderRepresentation
 
 public class OrderItemRepresentation
 {
-    public int id { get; set; }
-    public int quantity { get; set; }
+    public int Id { get; set; }
+    public int Quantity { get; set; }
 }

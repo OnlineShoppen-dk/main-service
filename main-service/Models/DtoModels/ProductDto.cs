@@ -26,18 +26,16 @@ public class ProductDto
     {
         return new ProductRepresentation
         {
-            id = Id,
-            name = Name,
-            description = Description,
-            price = Price,
-            stock = Stock,
-            sold = Sold,
-            createdAt = CreatedAt,
-            updatedAt = UpdatedAt,
-            isRemoved = IsRemoved,
-            imageId = ImageId,
-            images = Images.Select(i => i.ToRepresentation()).ToList(),
-            categories = Categories.Select(c => c.ToRepresentation()).ToList()
+            Id = Id,
+            Name = Name,
+            Description = Description,
+            Price = Price,
+            Stock = Stock,
+            Sold = Sold,
+            CreatedAt = CreatedAt,
+            UpdatedAt = UpdatedAt,
+            Images = Images.Select(I => I.ToRepresentation()).ToList(),
+            Categories = Categories.Select(C => C.ToRepresentation()).ToList()
         };
     }
 }
