@@ -40,7 +40,7 @@ public class Startup
         {
             options.AddPolicy("AllowAll", builder =>
             {
-                builder.WithOrigins("http://localhost:3000")
+                builder.WithOrigins("http://localhost:5173")
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials();
