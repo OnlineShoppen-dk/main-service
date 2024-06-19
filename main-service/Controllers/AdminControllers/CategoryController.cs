@@ -55,6 +55,25 @@ public class CategoryController : BaseAdminController
         return Ok("Product added to category");
     }
     
+    [HttpPost]
+    [Route("{id:int}/remove-product/{productId:int}")]
+    public async Task<IActionResult> RemoveProductFromCategory(int id, int productId)
+    {
+        var category = await _dbContext.Categories.FindAsync(id);
+        if (category == null)
+        {
+            return NotFound("Category not found");
+        }
+        var product = await _dbContext.Products.FindAsync(productId);
+        if (product == null)
+        {
+            return NotFound("Product not found");
+        }
+        category.Products.Remove(product);
+        await _dbContext.SaveChangesAsync();
+        return Ok("Product removed from category");
+    }
+    
     // BASIC CRUD OPERATIONS
     // Get All Categories
     [HttpGet]
