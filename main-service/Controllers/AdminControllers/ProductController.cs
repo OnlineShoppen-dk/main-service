@@ -238,8 +238,7 @@ public class ProductController : BaseAdminController
 
         // Publish update to RabbitMQ
         PublishProductToBroker(product.Id);
-
-        // Response
+        
         var productDto = _mapper.Map<ProductDto>(product);
         return Ok(productDto);
     }
@@ -256,6 +255,7 @@ public class ProductController : BaseAdminController
 
         product.ProductRemoved = null;
         await _dbContext.SaveChangesAsync();
+        
         // Publish update to RabbitMQ
         PublishProductToBroker(product.Id);
         return Ok("Product restored");

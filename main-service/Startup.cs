@@ -55,7 +55,7 @@ public class Startup
         
         // TODO: Remove this line if production seed data is not necessary
         // Seed data if necessary (only if product & category tables are empty
-        dbContext.SeedData();
+        // dbContext.SeedData();
         
         app.UseCors("AllowAll");
         if (env.IsDevelopment())
