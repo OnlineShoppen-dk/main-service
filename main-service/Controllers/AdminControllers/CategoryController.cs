@@ -52,6 +52,7 @@ public class CategoryController : BaseAdminController
         }
         category.Products.Add(product);
         await _dbContext.SaveChangesAsync();
+        PublishProductToBroker(productId);
         return Ok("Product added to category");
     }
     
@@ -76,6 +77,7 @@ public class CategoryController : BaseAdminController
         
         category.Products.Remove(product);
         await _dbContext.SaveChangesAsync();
+        PublishProductToBroker(productId);
         return Ok("Product removed from category");
     }
     
@@ -174,6 +176,19 @@ public class CategoryController : BaseAdminController
         _dbContext.Categories.Remove(category);
         await _dbContext.SaveChangesAsync();
         return Ok("Category deleted");
+    }
+    
+    private async void PublishProductToBroker(int productId)
+    {
+        var product = await _dbContext.Products
+            .Include(p => p.ProductDescriptions)
+            .Include(p => p.Categories)
+            .Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == productId);
+        
+        var productDto = _mapper.Map<ProductDto>(product);
+        var deserializeProduct = productDto.ToRepresentation();
+        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
     }
 
 

@@ -44,10 +44,7 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
-        var productDto = _mapper.Map<ProductDto>(product);
-        var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
-
+        PublishProductToBroker(product.Id);
         return Ok("Image added to product");
     }
 
@@ -66,10 +63,7 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
-        var productDto = _mapper.Map<ProductDto>(product);
-        var deserializeProduct = productDto.ToRepresentation();
-        _rabbitMqProducer.PublishProductQueue(deserializeProduct);
-
+        PublishProductToBroker(product.Id);
         return Ok("Image deleted");
     }
 
@@ -216,7 +210,7 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
-        PublishProductToBroker(product);
+        PublishProductToBroker(product.Id);
         var productDto = _mapper.Map<ProductDto>(product);
         return Ok(productDto);
     }
@@ -243,7 +237,7 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
-        PublishProductToBroker(product);
+        PublishProductToBroker(product.Id);
 
         // Response
         var productDto = _mapper.Map<ProductDto>(product);
@@ -263,7 +257,7 @@ public class ProductController : BaseAdminController
         product.ProductRemoved = null;
         await _dbContext.SaveChangesAsync();
         // Publish update to RabbitMQ
-        PublishProductToBroker(product);
+        PublishProductToBroker(product.Id);
         return Ok("Product restored");
     }
 
@@ -288,14 +282,19 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
-        PublishProductToBroker(product);
-
+        PublishProductToBroker(product.Id);
         return Ok("Product deleted");
     }
 
 
-    private void PublishProductToBroker(Product product)
+    private async void PublishProductToBroker(int productId)
     {
+        var product = await _dbContext.Products
+            .Include(p => p.ProductDescriptions)
+            .Include(p => p.Categories)
+            .Include(p => p.Images)
+            .FirstOrDefaultAsync(p => p.Id == productId);
+        
         var productDto = _mapper.Map<ProductDto>(product);
         var deserializeProduct = productDto.ToRepresentation();
         _rabbitMqProducer.PublishProductQueue(deserializeProduct);
