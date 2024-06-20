@@ -40,7 +40,7 @@ public class RabbitMQProducer : IRabbitMQProducer
         // Setup queues
         _productQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_QUEUE") ?? _configuration["RabbitMQ:ProductQueue"];
         _syncProductQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_SYNC_QUEUE") ?? _configuration["RabbitMQ:ProductSyncQueue"];
-        _removeProductQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_REMOVE_QUEUE") ?? _configuration["RabbitMQ:ProductRemoveQueue"];
+        _removeProductQueue = Environment.GetEnvironmentVariable("RABBITMQ_PRODUCT_DELETE_QUEUE") ?? _configuration["RabbitMQ:ProductRemoveQueue"];
     }
     
     public void SyncProductQueue<T>(T message)
