@@ -279,11 +279,11 @@ public class ProductController : BaseAdminController
             RemovedAt = DateTimeOffset.Now,
         };
         product.ProductRemoved = productRemoved;
-        _rabbitMqProducer.PublishRemoveProductQueue(product);
         await _dbContext.SaveChangesAsync();
-
+        
         // Publish update to RabbitMQ
-        await PublishProductToBroker(product.Id);
+        _rabbitMqProducer.PublishRemoveProductQueue(id);
+
         return Ok("Product deleted");
     }
 
