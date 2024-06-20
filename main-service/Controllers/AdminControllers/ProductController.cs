@@ -170,6 +170,7 @@ public class ProductController : BaseAdminController
         var product = await _dbContext.Products
             .Include(p => p.ProductDescriptions)
             .Include(p => p.Categories)
+            .Include(p => p.Images)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (product == null)
