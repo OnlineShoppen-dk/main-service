@@ -165,6 +165,7 @@ public class ProductController : BaseAdminController
             .Include(p => p.ProductDescriptions)
             .Include(p => p.Categories)
             .Include(p => p.Images)
+            .Include(p => p.ProductRemoved)
             .FirstOrDefaultAsync(p => p.Id == id);
 
         if (product == null)
@@ -278,8 +279,7 @@ public class ProductController : BaseAdminController
             RemovedAt = DateTimeOffset.Now,
         };
         product.ProductRemoved = productRemoved;
-
-        // _rabbitMqProducer.PublishRemoveProductQueue(product);
+        _rabbitMqProducer.PublishRemoveProductQueue(product);
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
@@ -294,6 +294,7 @@ public class ProductController : BaseAdminController
             .Include(p => p.ProductDescriptions)
             .Include(p => p.Categories)
             .Include(p => p.Images)
+            .Include(p => p.ProductRemoved)
             .FirstOrDefaultAsync(p => p.Id == productId);
         
         var productDto = _mapper.Map<ProductDto>(product);
