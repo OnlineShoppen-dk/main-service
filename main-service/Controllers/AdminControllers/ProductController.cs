@@ -44,7 +44,7 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
-        PublishProductToBroker(product.Id);
+        await PublishProductToBroker(product.Id);
         return Ok("Image added to product");
     }
 
@@ -63,7 +63,7 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
-        PublishProductToBroker(product.Id);
+        await PublishProductToBroker(product.Id);
         return Ok("Image deleted");
     }
 
@@ -210,7 +210,7 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
-        PublishProductToBroker(product.Id);
+        await PublishProductToBroker(product.Id);
         var productDto = _mapper.Map<ProductDto>(product);
         return Ok(productDto);
     }
@@ -237,7 +237,7 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
-        PublishProductToBroker(product.Id);
+        await PublishProductToBroker(product.Id);
         
         var productDto = _mapper.Map<ProductDto>(product);
         return Ok(productDto);
@@ -247,7 +247,8 @@ public class ProductController : BaseAdminController
     [HttpPut("{id:int}/restore")]
     public async Task<IActionResult> Restore(int id)
     {
-        var product = await _dbContext.Products.Include(p => p.ProductRemoved).FirstOrDefaultAsync(p => p.Id == id);
+        var product = await _dbContext.Products.Include(p => p.ProductRemoved)
+            .FirstOrDefaultAsync(p => p.Id == id);
         if (product == null)
         {
             return NotFound("Product not found");
@@ -257,7 +258,7 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
         
         // Publish update to RabbitMQ
-        PublishProductToBroker(product.Id);
+        await PublishProductToBroker(product.Id);
         return Ok("Product restored");
     }
 
@@ -282,12 +283,12 @@ public class ProductController : BaseAdminController
         await _dbContext.SaveChangesAsync();
 
         // Publish update to RabbitMQ
-        PublishProductToBroker(product.Id);
+        await PublishProductToBroker(product.Id);
         return Ok("Product deleted");
     }
 
 
-    private async void PublishProductToBroker(int productId)
+    private async Task PublishProductToBroker(int productId)
     {
         var product = await _dbContext.Products
             .Include(p => p.ProductDescriptions)

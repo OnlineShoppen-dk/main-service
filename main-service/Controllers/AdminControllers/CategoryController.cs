@@ -52,7 +52,7 @@ public class CategoryController : BaseAdminController
         }
         category.Products.Add(product);
         await _dbContext.SaveChangesAsync();
-        PublishProductToBroker(productId);
+        await PublishProductToBroker(productId);
         return Ok("Product added to category");
     }
     
@@ -77,7 +77,7 @@ public class CategoryController : BaseAdminController
         
         category.Products.Remove(product);
         await _dbContext.SaveChangesAsync();
-        PublishProductToBroker(productId);
+        await PublishProductToBroker(productId);
         return Ok("Product removed from category");
     }
     
@@ -178,7 +178,7 @@ public class CategoryController : BaseAdminController
         return Ok("Category deleted");
     }
     
-    private async void PublishProductToBroker(int productId)
+    private async Task PublishProductToBroker(int productId)
     {
         var product = await _dbContext.Products
             .Include(p => p.ProductDescriptions)
