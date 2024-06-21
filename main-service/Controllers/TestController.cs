@@ -15,18 +15,14 @@ namespace main_service.Controllers;
 public class TestController : BaseController
 {
     [HttpGet]
-    [Route("setup")]
-    public async Task<IActionResult> Setup()
+    [Route("setup/products/{productCount:int}/categories/{categoryCount:int}")]
+    public async Task<IActionResult> Setup(int productCount, int categoryCount)
     {
         // Delete all data
         _dbContext.RemoveRange(_dbContext.Products);
         _dbContext.RemoveRange(_dbContext.Categories);
         _dbContext.RemoveRange(_dbContext.UserDetails);
         await _dbContext.SaveChangesAsync();
-
-        // Create test data
-        const int productCount = 10;
-        const int categoryCount = 5;
 
         // Create test products
         var productsCreated = await CreateTestProducts(productCount);
